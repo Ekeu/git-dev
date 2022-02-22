@@ -6,6 +6,8 @@ export const SIGNUP_WELCOME = 'Welcome to GitDev';
 export const SIGNIN_WELCOME = 'Welcome Back!';
 export const SIGNUP_SWITCH = 'Create an account';
 export const SIGNIN_SWITCH = 'Need a GitDev account?';
+export const USERNAME_REGEX_PATTERN =
+  /^[a-zA-Z0-9]([._-](?![._-])|[a-zA-Z0-9]){3,18}[a-zA-Z0-9]$/;
 
 /* 
 ^[a-zA-Z0-9]      # start with an alphanumeric character
@@ -33,7 +35,7 @@ export const AUTH_USERNAME_CONFIG = {
     message: 'Your username is too short.',
   },
   pattern: {
-    value: /^[a-zA-Z0-9]([._-](?![._-])|[a-zA-Z0-9]){3,18}[a-zA-Z0-9]$/,
+    value: USERNAME_REGEX_PATTERN,
     message: 'Please provide a valid username.',
   },
 };

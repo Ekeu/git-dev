@@ -13,6 +13,7 @@ import {
 } from '../../constants/auth';
 import Input from '../../components/common/input/input';
 import Button from '../../components/common/button/button';
+import Link from 'next/link';
 
 const Signin = (props) => {
   const [showPassword, setShowPassord] = useState(false);
@@ -44,9 +45,11 @@ const Signin = (props) => {
     };
   }, []);
 
+  console.log(errors.password);
+
   return (
     <>
-      <div className='relative min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-violet-500/75 to-white'>
+      <div className='relative min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-violet-500/40 to-white'>
         <div className='relative max-w-md w-full space-y-8'>
           <div>
             <Image
@@ -71,14 +74,14 @@ const Signin = (props) => {
                 type={'email'}
                 label={'Email address'}
                 autoComplete={'email'}
-                register={register('email', { ...AUTH_EMAIL_CONFIG })}
+                register={register('email', { required: true })}
                 placeholder={'john.doe@gmail.com'}
                 inputBodyClassName={'!mt-0 !shadow-none'}
                 inputClassName={
                   '!rounded-none relative !rounded-t-md focus:z-10 !shadow-none'
                 }
                 labelClassName={'sr-only'}
-                registerErrorMessage={errors.email?.message}
+                registerErrorMessage={errors.email}
               />
               <Input
                 id={'password'}
@@ -95,14 +98,14 @@ const Signin = (props) => {
                 }
                 trailingIconClassName={'h-5 w-5 text-slate-700'}
                 inputContainerClassName={'cursor-pointer'}
-                register={register('password', { ...AUTH_PASSWORD_CONFIG })}
+                register={register('password', { required: true })}
                 placeholder={'********'}
                 inputBodyClassName={'!mt-0 !shadow-none'}
                 inputClassName={
                   '!rounded-none relative !rounded-b-md focus:z-10 !shadow-none'
                 }
                 labelClassName={'sr-only'}
-                registerErrorMessage={errors.password?.message}
+                registerErrorMessage={errors.password}
               />
             </div>
 
@@ -123,12 +126,11 @@ const Signin = (props) => {
               </div>
 
               <div className='text-sm'>
-                <a
-                  href='#'
-                  className='font-medium text-indigo-600 hover:text-indigo-500'
-                >
-                  Forgot your password?
-                </a>
+                <Link href={'/auth/reset'}>
+                  <a className='font-medium text-violet-600 hover:text-violet-500'>
+                    Forgot your password?
+                  </a>
+                </Link>
               </div>
             </div>
 
