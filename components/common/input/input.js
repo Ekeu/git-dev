@@ -24,6 +24,8 @@ const InputIcon = ({ Icon, iconClassName, iconContainerClassName }) => {
   );
 };
 
+const isObject = (obj) => obj instanceof Object;
+
 const Input = ({
   id,
   label,
@@ -72,7 +74,7 @@ const Input = ({
           {...otherProps}
           {...register}
           className={`appearance-none px-3 py-2 shadow-sm focus:outline-none focus:ring-violet-800 block w-full font-hind sm:text-sm ${
-            registerErrorMessage
+            isObject(registerErrorMessage) || registerErrorMessage
               ? 'border-red-300 text-red-800 placeholder-red-300 focus:ring-red-500 focus:border-red-500'
               : 'border-slate-300 placeholder-slate-500 text-slate-800'
           } rounded-md ${LeadingIcon && 'pl-10'} ${
@@ -102,7 +104,7 @@ const Input = ({
           content={inputHelpText}
         />
       )}
-      {registerErrorMessage && (
+      {!isObject(registerErrorMessage) && registerErrorMessage && (
         <InputErrorAndHelp
           id={`${id}-error`}
           className={'text-red-600'}
