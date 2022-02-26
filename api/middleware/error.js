@@ -6,12 +6,13 @@ function logErrors(err) {
 }
 
 function logErrorMiddleware(err, req, res, next) {
+  console.log(err);
   logErrors(err);
   next(err);
 }
 
-function returnError(err, req, res, nexr) {
-  res.status(err.statusCode || 500).send(err.message);
+function returnError(err, req, res, next) {
+  res.status(err.httpCode || 500).send(err.message);
 }
 
 function isOperationalError(err) {

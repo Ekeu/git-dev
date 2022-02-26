@@ -29,6 +29,7 @@ const isObject = (obj) => obj instanceof Object;
 const Input = ({
   id,
   label,
+  success,
   register,
   cornerHint,
   cornerHindId,
@@ -76,6 +77,8 @@ const Input = ({
           className={`appearance-none px-3 py-2 shadow-sm focus:outline-none focus:ring-violet-800 block w-full font-hind sm:text-sm ${
             isObject(registerErrorMessage) || registerErrorMessage
               ? 'border-red-300 text-red-800 placeholder-red-300 focus:ring-red-500 focus:border-red-500'
+              : success
+              ? 'border-emerald-300 text-slate-80 focus:ring-emerald-500 focus:border-emerald-500'
               : 'border-slate-300 placeholder-slate-500 text-slate-800'
           } rounded-md ${LeadingIcon && 'pl-10'} ${
             TrailingIcon && 'pr-10'
@@ -118,6 +121,7 @@ const Input = ({
 Input.defaultProps = {
   id: '',
   label: '',
+  success: false,
   cornerHint: '',
   cornerHindId: '',
   inputHelpText: '',

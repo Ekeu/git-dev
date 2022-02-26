@@ -1,6 +1,6 @@
 import App from 'next/app';
 import Layout from '../components/layout/Layout';
-
+import 'react-toastify/dist/ReactToastify.css';
 import '../styles/globals.css';
 
 class MyApp extends App {
