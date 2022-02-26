@@ -1,4 +1,5 @@
 const bycrypt = require('bcryptjs');
+const validator = require('validator');
 
 const User = require('../../mongo/models/User');
 const Profile = require('../../mongo/models/Profile');
@@ -6,10 +7,9 @@ const Follower = require('../../mongo/models/Follower');
 const APIError = require('../errors/apiError');
 const HttpStatusCodes = require('../errors/httpStatusCodes');
 
-import validator from 'validator';
-import { USERNAME_REGEX_PATTERN } from '../../constants/auth';
-import { EMOJI_PROFILE_PICS } from '../../constants/profile';
-import { generateToken } from '../utils/generateToken';
+const { USERNAME_REGEX_PATTERN } = require('../../constants/auth');
+const { EMOJI_PROFILE_PICS } = require('../../constants/profile');
+const { generateToken } = require('../utils/generateToken');
 
 // @desc Auth user and get a token
 // @route GET /api/v1/users/signin
@@ -26,19 +26,21 @@ const authUser = async (req, res, next) => {
     );
 
   try {
-    const user = await User.findOne({ email: email.toLowerCase() });
-
-    if (!user || !(await user.matchPasswords(password)))
+    const user = await User.findOne({ email: email.toLowerCase() }).select(
+      '+password'
+    );
+    if (user && (await user.matchPasswords(password))) {
+      res.status(200).json({
+        token: generateToken(user._id),
+      });
+    } else {
       throw new APIError(
         'UNAUTHORIZED',
         HttpStatusCodes.UNAUTHORIZED,
         true,
         'Invalid email or password.'
       );
-
-    res.status(200).json({
-      token: generateToken(user._id),
-    });
+    }
   } catch (error) {
     next(error);
   }
@@ -117,17 +119,17 @@ const isUsernameAvailable = async (req, res, next) => {
         'BAD REQUEST',
         HttpStatusCodes.BAD_REQUEST,
         true,
-        'Username does not validate regex pattern.'
+        'Username must be between 5 and 20 characters.'
       );
 
-    const user = await User.findOne({ username: username.toLowerCase() });
+    const user = await User.findOne({ username });
 
     if (user)
       throw new APIError(
         'CONFLICT',
         HttpStatusCodes.CONFLICT,
         true,
-        'Username already taken.'
+        'That username is already taken.'
       );
 
     res.status(200).send('Username available!');

@@ -1,23 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
-import { LockClosedIcon, EyeOffIcon, EyeIcon } from '@heroicons/react/solid';
+import { EyeOffIcon, EyeIcon, XCircleIcon } from '@heroicons/react/solid';
 import { Image } from 'cloudinary-react';
 import { useForm } from 'react-hook-form';
 
 import Form from '../../components/common/form/form';
 import AuthMessage from '../../components/auth/auth-message';
-import {
-  AUTH_EMAIL_CONFIG,
-  AUTH_PASSWORD_CONFIG,
-  SIGNIN,
-} from '../../constants/auth';
+import { AUTH_EMAIL_CONFIG, SIGNIN } from '../../constants/auth';
 import Input from '../../components/common/input/input';
 import Button from '../../components/common/button/button';
 import Link from 'next/link';
+import { NotificationContext } from '../../context';
+import { userService, errorsService } from '../../services';
+import { setNotification } from '../../context/Notification/NotificationActions';
 
-const Signin = (props) => {
+const Signin = () => {
   const [showPassword, setShowPassord] = useState(false);
-  const [formLoading, setFormLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const showPasswordHandler = () => setShowPassord(!showPassword);
 
@@ -25,7 +24,6 @@ const Signin = (props) => {
     register,
     formState: { errors },
     handleSubmit,
-    setError,
   } = useForm({
     defaultValues: {
       email: '',
@@ -33,7 +31,28 @@ const Signin = (props) => {
     },
   });
 
-  const onSubmit = handleSubmit(async ({ email, password }) => {});
+  const { dispatch } = useContext(NotificationContext);
+
+  const onSubmit = handleSubmit(async ({ email, password }) => {
+    setLoading(true);
+    try {
+      await userService.login({ email, password });
+    } catch (error) {
+      setLoading(false);
+      const message = errorsService.catchErrors(error);
+      dispatch(
+        setNotification({
+          type: 'simple',
+          icon: {
+            Component: XCircleIcon,
+            className: 'text-red-400',
+          },
+          headline: 'Login Error',
+          message,
+        })
+      );
+    }
+  });
 
   useEffect(() => {
     document.documentElement.classList.add('h-full');
@@ -44,8 +63,6 @@ const Signin = (props) => {
       document.body.classList.remove('h-full');
     };
   }, []);
-
-  console.log(errors.password);
 
   return (
     <>
@@ -74,7 +91,7 @@ const Signin = (props) => {
                 type={'email'}
                 label={'Email address'}
                 autoComplete={'email'}
-                register={register('email', { required: true })}
+                register={register('email', { ...AUTH_EMAIL_CONFIG })}
                 placeholder={'john.doe@gmail.com'}
                 inputBodyClassName={'!mt-0 !shadow-none'}
                 inputClassName={
@@ -109,22 +126,7 @@ const Signin = (props) => {
               />
             </div>
 
-            <div className='flex items-center justify-between'>
-              <div className='flex items-center'>
-                <input
-                  id='remember-me'
-                  name='remember-me'
-                  type='checkbox'
-                  className='h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded'
-                />
-                <label
-                  htmlFor='remember-me'
-                  className='ml-2 block text-sm text-gray-900'
-                >
-                  Remember me
-                </label>
-              </div>
-
+            <div className='flex items-center justify-end'>
               <div className='text-sm'>
                 <Link href={'/auth/reset'}>
                   <a className='font-medium text-violet-600 hover:text-violet-500'>
@@ -137,14 +139,9 @@ const Signin = (props) => {
             <div>
               <Button
                 type='submit'
+                loading={loading}
                 className='group relative !flex w-full justify-center text-white bg-violet-600 hover:bg-violet-700'
               >
-                <span className='absolute left-0 inset-y-0 flex items-center pl-3'>
-                  <LockClosedIcon
-                    className='h-5 w-5 text-violet-500 group-hover:text-violet-400'
-                    aria-hidden='true'
-                  />
-                </span>
                 {SIGNIN}
               </Button>
             </div>

@@ -1,8 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-
+import React, { useState, useEffect, useContext } from 'react';
 import { Image } from 'cloudinary-react';
 import { useForm } from 'react-hook-form';
-import { EyeOffIcon, EyeIcon } from '@heroicons/react/solid';
+import {
+  EyeOffIcon,
+  EyeIcon,
+  CheckIcon,
+  XCircleIcon,
+} from '@heroicons/react/solid';
 
 import Input from '../../components/common/input/input';
 import Form from '../../components/common/form/form';
@@ -14,18 +18,24 @@ import {
   AUTH_PASSWORD_CONFIG,
   AUTH_USERNAME_CONFIG,
   SIGNUP,
+  USERNAME_AVAILABLE,
 } from '../../constants/auth';
+import { NotificationContext } from '../../context';
+import { setNotification } from '../../context/Notification/NotificationActions';
+import { userService, errorsService } from '../../services';
 
 const Signup = () => {
   const [showPassword, setShowPassord] = useState(false);
-  const [usernameLoading, setusernameLoading] = useState(false);
-  const [formLoading, setFormLoading] = useState(false);
+  const [enteredUsername, setEnteredsername] = useState('');
+  const [isUsernameAvailable, setIsUsernameAvailable] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
     formState: { errors },
     handleSubmit,
     setError,
+    clearErrors,
   } = useForm({
     defaultValues: {
       name: '',
@@ -33,19 +43,32 @@ const Signup = () => {
       email: '',
       password: '',
     },
+    mode: 'onChange',
   });
 
+  const { dispatch } = useContext(NotificationContext);
+
   const onSubmit = handleSubmit(async ({ name, username, email, password }) => {
-    setError(
-      'username',
-      {
-        type: 'server',
-        message: 'Username already taken!',
-      },
-      {
-        shouldFocus: true,
-      }
-    );
+    if (!isUsernameAvailable) return;
+
+    try {
+      setLoading(true);
+      await userService.register({ name, username, email, password });
+    } catch (error) {
+      setLoading(false);
+      const message = errorsService.catchErrors(error);
+      dispatch(
+        setNotification({
+          type: 'simple',
+          icon: {
+            Component: XCircleIcon,
+            className: 'text-red-400',
+          },
+          headline: 'Registration Error',
+          message,
+        })
+      );
+    }
   });
 
   const showPasswordHandler = () => setShowPassord(!showPassword);
@@ -59,6 +82,42 @@ const Signup = () => {
       document.body.classList.remove('h-full');
     };
   }, []);
+
+  useEffect(() => {
+    setIsUsernameAvailable(false);
+    const checkUsernameHandler = async (username) => {
+      try {
+        const res = await userService.checkUsername(username);
+        if (res === USERNAME_AVAILABLE) {
+          clearErrors('username');
+          setIsUsernameAvailable(true);
+        }
+      } catch (error) {
+        setIsUsernameAvailable(false);
+        setError(
+          'username',
+          {
+            type: 'server',
+            message: error.response?.data,
+          },
+          {
+            shouldFocus: true,
+          }
+        );
+      }
+    };
+
+    if (errors.username?.message) return;
+
+    let timer = setTimeout(() => {
+      if (!errors.username?.message && enteredUsername)
+        checkUsernameHandler(enteredUsername);
+    }, 1500);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [errors.username?.message, enteredUsername, clearErrors, setError]);
 
   return (
     <div className='min-h-full flex relative'>
@@ -100,8 +159,15 @@ const Signup = () => {
                   type={'text'}
                   label={'Username'}
                   autoComplete={'username'}
-                  register={register('username', { ...AUTH_USERNAME_CONFIG })}
+                  register={register('username', {
+                    ...AUTH_USERNAME_CONFIG,
+                    onChange: (e) => setEnteredsername(e.target.value),
+                  })}
+                  trailingIcon={isUsernameAvailable && CheckIcon}
+                  trailingIconClassName={'h-5 w-5 text-emerald-500'}
+                  success={isUsernameAvailable}
                   placeholder={'iDevAbIL'}
+                  inputClassName={'transition-all duration-200 ease-in-out'}
                   registerErrorMessage={errors.username?.message}
                 />
 
@@ -138,7 +204,10 @@ const Signup = () => {
                 <div>
                   <Button
                     type='submit'
-                    className='w-full justify-center text-white bg-violet-600 hover:bg-violet-700'
+                    loading={loading}
+                    disabled={!isUsernameAvailable}
+                    spinnerClassName={'text-white'}
+                    className='group relative !flex w-full justify-center text-white bg-violet-600 hover:bg-violet-700'
                   >
                     {SIGNUP}
                   </Button>
@@ -152,7 +221,7 @@ const Signup = () => {
         <Image
           className='absolute inset-0 h-full w-full object-cover'
           cloudName='dmcookpro'
-          publicId='git-dev/auth/gitdev-signup-image'
+          publicId={'git-dev/auth/gitdev-signup-image'}
           loading='lazy'
           alt='Welcome Developer'
           draggable={false}

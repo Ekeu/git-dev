@@ -1,4 +1,4 @@
-export const EMOJI_PROFILE_PICS = [
+const EMOJI_PROFILE_PICS = [
   'https://res.cloudinary.com/dmcookpro/image/upload/v1645542381/git-dev/emoji/1.png',
   'https://res.cloudinary.com/dmcookpro/image/upload/v1645542381/git-dev/emoji/2.png',
   'https://res.cloudinary.com/dmcookpro/image/upload/v1645542381/git-dev/emoji/3.png',
@@ -11,3 +11,7 @@ export const EMOJI_PROFILE_PICS = [
   'https://res.cloudinary.com/dmcookpro/image/upload/v1645542382/git-dev/emoji/10.png',
   'https://res.cloudinary.com/dmcookpro/image/upload/v1645542382/git-dev/emoji/11.png',
 ];
+
+module.exports = {
+  EMOJI_PROFILE_PICS,
+};
