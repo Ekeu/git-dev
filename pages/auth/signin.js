@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { EyeOffIcon, EyeIcon, XCircleIcon } from '@heroicons/react/solid';
 import { Image } from 'cloudinary-react';
 import { useForm } from 'react-hook-form';
+import { parseCookies } from 'nookies';
 
 import Form from '../../components/common/form/form';
 import AuthMessage from '../../components/auth/auth-message';
@@ -11,7 +12,7 @@ import Input from '../../components/common/input/input';
 import Button from '../../components/common/button/button';
 import Link from 'next/link';
 import { NotificationContext } from '../../context';
-import { userService, errorsService } from '../../services';
+import { authService, errorsService } from '../../services';
 import { setNotification } from '../../context/Notification/NotificationActions';
 
 const Signin = () => {
@@ -36,7 +37,7 @@ const Signin = () => {
   const onSubmit = handleSubmit(async ({ email, password }) => {
     setLoading(true);
     try {
-      await userService.login({ email, password });
+      await authService.login({ email, password });
     } catch (error) {
       setLoading(false);
       const message = errorsService.catchErrors(error);
@@ -153,5 +154,22 @@ const Signin = () => {
 };
 
 Signin.propTypes = {};
+
+export async function getServerSideProps(ctx) {
+  const { u_token } = parseCookies(ctx);
+
+  if (u_token) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
+}
 
 export default Signin;

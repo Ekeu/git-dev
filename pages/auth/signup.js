@@ -7,6 +7,7 @@ import {
   CheckIcon,
   XCircleIcon,
 } from '@heroicons/react/solid';
+import { parseCookies } from 'nookies';
 
 import Input from '../../components/common/input/input';
 import Form from '../../components/common/form/form';
@@ -22,7 +23,7 @@ import {
 } from '../../constants/auth';
 import { NotificationContext } from '../../context';
 import { setNotification } from '../../context/Notification/NotificationActions';
-import { userService, errorsService } from '../../services';
+import { authService, errorsService } from '../../services';
 
 const Signup = () => {
   const [showPassword, setShowPassord] = useState(false);
@@ -53,7 +54,7 @@ const Signup = () => {
 
     try {
       setLoading(true);
-      await userService.register({ name, username, email, password });
+      await authService.register({ name, username, email, password });
     } catch (error) {
       setLoading(false);
       const message = errorsService.catchErrors(error);
@@ -87,7 +88,7 @@ const Signup = () => {
     setIsUsernameAvailable(false);
     const checkUsernameHandler = async (username) => {
       try {
-        const res = await userService.checkUsername(username);
+        const res = await authService.checkUsername(username);
         if (res === USERNAME_AVAILABLE) {
           clearErrors('username');
           setIsUsernameAvailable(true);
@@ -232,5 +233,22 @@ const Signup = () => {
     </div>
   );
 };
+
+export async function getServerSideProps(ctx) {
+  const { u_token } = parseCookies(ctx);
+
+  if (u_token) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
+}
 
 export default Signup;

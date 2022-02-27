@@ -4,7 +4,6 @@ import Button from '../common/button/button';
 import { XIcon } from '@heroicons/react/solid';
 
 const NotificationContent = ({ message, actionHandler, actionHandlerText }) => {
-  console.log(actionHandler);
   return (
     <>
       <p className='w-0 flex-1 text-sm font-medium font-hind text-slate-800'>

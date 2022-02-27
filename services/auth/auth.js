@@ -32,10 +32,10 @@ const login = async (user) => {
       user,
     }
   );
-  setUserToken(res.data);
+  setUserToken(res.data.token);
 };
 
-export const userService = {
+export const authService = {
   checkUsername,
   register,
   login,
