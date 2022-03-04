@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { parseCookies } from 'nookies';
 
 import Form from '../../components/common/form/form';
-import AuthMessage from '../../components/auth/auth-message';
+import AuthMessage from '../../components/auth/AuthMessage';
 import { AUTH_EMAIL_CONFIG, SIGNIN } from '../../constants/auth';
 import Input from '../../components/common/input/input';
 import Button from '../../components/common/button/button';
@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { NotificationContext } from '../../context';
 import { authService, errorsService } from '../../services';
 import { setNotification } from '../../context/Notification/NotificationActions';
+import Cookies from 'js-cookie';
 
 const Signin = () => {
   const [showPassword, setShowPassord] = useState(false);
@@ -24,6 +25,7 @@ const Signin = () => {
   const {
     register,
     formState: { errors },
+    setValue,
     handleSubmit,
   } = useForm({
     defaultValues: {
@@ -65,6 +67,13 @@ const Signin = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const u_email = Cookies.get('u_email');
+    if (u_email) {
+      setValue('email', u_email);
+    }
+  }, [setValue]);
+
   return (
     <>
       <div className='relative min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-violet-500/40 to-white'>
@@ -74,7 +83,7 @@ const Signin = () => {
               className='w-auto h-12 mx-auto'
               cloudName='dmcookpro'
               publicId={'git-dev/gitdev-logo.svg'}
-              alt='GitDev'
+              alt='gitdev'
               draggable={false}
               width={'100%'}
               height={'100%'}

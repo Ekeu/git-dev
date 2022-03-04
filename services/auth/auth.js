@@ -22,7 +22,7 @@ const register = async (user) => {
       user,
     }
   );
-  setUserToken(res.data);
+  setUserToken(res.data.token);
 };
 
 const login = async (user) => {
@@ -35,8 +35,16 @@ const login = async (user) => {
   setUserToken(res.data.token);
 };
 
+const signout = (email) => {
+  Cookie.set('u_email', email);
+  Cookie.remove('u_token');
+  Router.push('/auth/signin');
+  Router.reload();
+};
+
 export const authService = {
   checkUsername,
   register,
   login,
+  signout,
 };

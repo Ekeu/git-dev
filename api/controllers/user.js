@@ -1,4 +1,3 @@
-const bycrypt = require('bcryptjs');
 const validator = require('validator');
 
 const User = require('../../mongo/models/User');
@@ -17,15 +16,15 @@ const { generateToken } = require('../utils/generateToken');
 const authUser = async (req, res, next) => {
   const { email, password } = req.body.user;
 
-  if (!validator.isEmail(email))
-    throw new APIError(
-      'BAD REQUEST',
-      HttpStatusCodes.BAD_REQUEST,
-      true,
-      'Invalid Email Address.'
-    );
-
   try {
+    if (!validator.isEmail(email))
+      throw new APIError(
+        'BAD REQUEST',
+        HttpStatusCodes.BAD_REQUEST,
+        true,
+        'Invalid Email Address.'
+      );
+
     const user = await User.findOne({ email: email.toLowerCase() }).select(
       '+password'
     );

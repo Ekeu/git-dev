@@ -11,7 +11,7 @@ import { parseCookies } from 'nookies';
 
 import Input from '../../components/common/input/input';
 import Form from '../../components/common/form/form';
-import AuthMessage from '../../components/auth/auth-message';
+import AuthMessage from '../../components/auth/AuthMessage';
 import Button from '../../components/common/button/button';
 import {
   AUTH_EMAIL_CONFIG,
@@ -133,8 +133,9 @@ const Signup = () => {
               className='w-auto h-12'
               cloudName='dmcookpro'
               publicId={'git-dev/gitdev-logo.svg'}
-              alt='GitDev'
+              alt='gitdev'
               draggable={false}
+              loading='lazy'
               width={'100%'}
               height={'100%'}
             ></Image>

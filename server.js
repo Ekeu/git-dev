@@ -14,6 +14,7 @@ const HttpStatusCodes = require('./api/errors/httpStatusCodes');
 const { isOperationalError, logErrors } = require('./api/middleware/error');
 
 const userRoutes = require('./api/routes/user');
+const postRoutes = require('./api/routes/post');
 
 dotenv.config();
 
@@ -41,13 +42,14 @@ process.on('uncaughtException', (error) => {
   }
 });
 
+app.use(httpLogger);
 app.use(express.json());
 
 nextApp.prepare().then(() => {
   app.use('/api/v1/users', userRoutes);
+  app.use('/api/v1/posts', postRoutes);
   app.all('*', (req, res) => handle(req, res));
 
-  app.use(httpLogger);
   app.use(logErrorMiddleware);
   app.use(returnError);
 

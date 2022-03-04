@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import Layout from '../components/layout/Layout';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/globals.css';
+import '@algolia/autocomplete-theme-classic';
 
 function MyApp({ Component, pageProps }) {
   useEffect(() => {

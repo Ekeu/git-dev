@@ -29,6 +29,7 @@ module.exports = {
         secondary: '#FFBD59',
         tertiary: '#9A5AA9',
         neutral: '#373737',
+        algolia: '#5468ff',
       },
 
       fontFamily: {

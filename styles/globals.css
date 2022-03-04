@@ -6,3 +6,19 @@
   background: transparent !important;
   box-shadow: none !important;
 }
+
+/** Algolia **/
+
+.aa-Label svg {
+  color: #a78bfa !important;
+}
+
+.aa-Item mark {
+  background-color: transparent !important;
+  color: #7e22ce !important;
+  font-weight: 700 !important;
+}
+
+.aa-Item .aa-ItemContentTitle {
+  font-size: 0.875rem !important;
+}
