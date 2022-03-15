@@ -5,11 +5,11 @@ import { Image } from 'cloudinary-react';
 import { useForm } from 'react-hook-form';
 import { parseCookies } from 'nookies';
 
-import Form from '../../components/common/form/form';
+import Form from '../../components/common/form/Form';
 import AuthMessage from '../../components/auth/AuthMessage';
 import { AUTH_EMAIL_CONFIG, SIGNIN } from '../../constants/auth';
-import Input from '../../components/common/input/input';
-import Button from '../../components/common/button/button';
+import Input from '../../components/common/input/Input';
+import Button from '../../components/common/button/Button';
 import Link from 'next/link';
 import { NotificationContext } from '../../context';
 import { authService, errorsService } from '../../services';
@@ -87,7 +87,7 @@ const Signin = () => {
               draggable={false}
               width={'100%'}
               height={'100%'}
-            ></Image>
+            />
             <AuthMessage
               headlineClassName={'text-center'}
               subHeadLineClassName={'text-center'}
@@ -150,6 +150,7 @@ const Signin = () => {
               <Button
                 type='submit'
                 loading={loading}
+                spinnerClassName={'text-white'}
                 className='group relative !flex w-full justify-center text-white bg-violet-600 hover:bg-violet-700'
               >
                 {SIGNIN}

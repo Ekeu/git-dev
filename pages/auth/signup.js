@@ -9,10 +9,10 @@ import {
 } from '@heroicons/react/solid';
 import { parseCookies } from 'nookies';
 
-import Input from '../../components/common/input/input';
-import Form from '../../components/common/form/form';
+import Input from '../../components/common/input/Input';
+import Form from '../../components/common/form/Form';
 import AuthMessage from '../../components/auth/AuthMessage';
-import Button from '../../components/common/button/button';
+import Button from '../../components/common/button/Button';
 import {
   AUTH_EMAIL_CONFIG,
   AUTH_NAME_CONFIG,

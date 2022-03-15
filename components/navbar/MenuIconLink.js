@@ -2,25 +2,25 @@ import React from 'react';
 import { Image } from 'cloudinary-react';
 
 const MenuIconLink = ({
-  Icon,
-  iconClassName,
-  imageURL,
-  imageALT,
   name,
-  nameClassName,
-  className,
   info,
+  Icon,
+  imageALT,
+  imageURL,
+  className,
+  iconClassName,
+  nameClassName,
   infoClassName,
+  iconContainerClassName,
+  ...otherProps
 }) => {
   return (
-    <div className={`flex-shrink-0 group block ${className}`}>
+    <div className={`flex-shrink-0 group block ${className}`} {...otherProps}>
       <div className='flex items-center'>
         <div>
           {Icon && (
             <div
-              className={
-                'bg-slate-400 text-white flex items-center p-2 rounded-full'
-              }
+              className={`bg-slate-400 text-white flex items-center p-2 rounded-full ${iconContainerClassName}`}
             >
               <Icon className={`h-5 w-5 ${iconClassName}`} aria-hidden='true' />
             </div>
@@ -41,7 +41,7 @@ const MenuIconLink = ({
           )}
         </div>
         <div className='ml-2'>
-          <p className={`text-sm font-lato font-medium ${nameClassName}`}>
+          <p className={`text-sm font-inter font-medium ${nameClassName}`}>
             {name}
           </p>
           {info && (

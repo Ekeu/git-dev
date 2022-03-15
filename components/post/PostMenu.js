@@ -7,9 +7,10 @@ import {
   StarIcon,
 } from '@heroicons/react/outline';
 
-import { classNames } from '../../utils/tailwind/tailwind';
+import MenuIconLink from '../navbar/MenuIconLink';
 
-const PostMenu = () => {
+const PostMenu = ({ onOpenModalHandler, user, post }) => {
+  const isOwnerOrRoot = user?.role === 'root' || post?.user?._id === user?._id;
   return (
     <Menu as='div' className='relative inline-block text-left font-hind'>
       <div>
@@ -40,55 +41,59 @@ const PostMenu = () => {
           <div className='py-1'>
             <Menu.Item as={'button'} className='w-full'>
               {({ active }) => (
-                <span
-                  href='#'
-                  className={classNames(
-                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                    'flex px-4 py-2 text-sm'
-                  )}
-                >
-                  <StarIcon
-                    className='mr-3 h-5 w-5 text-gray-400'
-                    aria-hidden='true'
-                  />
-                  <span>Add to favorites</span>
-                </span>
+                <MenuIconLink
+                  name={'Add to favorites'}
+                  iconContainerClassName={
+                    '!bg-transparent !p-0 !text-slate-400 !rounded-none'
+                  }
+                  nameClassName={
+                    'text-slate-700 !text-md !font-normal !font-hind'
+                  }
+                  Icon={StarIcon}
+                  className={`${
+                    active && 'bg-slate-100'
+                  } flex px-4 py-2 text-sm`}
+                />
               )}
             </Menu.Item>
-            <Menu.Item>
+            <Menu.Item as={'button'} className='w-full'>
               {({ active }) => (
-                <a
-                  href='#'
-                  className={classNames(
-                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                    'flex px-4 py-2 text-sm'
-                  )}
-                >
-                  <FlagIcon
-                    className='mr-3 h-5 w-5 text-gray-400'
-                    aria-hidden='true'
-                  />
-                  <span>Report content</span>
-                </a>
+                <MenuIconLink
+                  name={'Report content'}
+                  iconContainerClassName={
+                    '!bg-transparent !p-0 !text-slate-400 !rounded-none'
+                  }
+                  nameClassName={
+                    'text-slate-700 !text-md !font-normal !font-hind'
+                  }
+                  Icon={FlagIcon}
+                  className={`${
+                    active && 'bg-slate-100'
+                  } flex px-4 py-2 text-sm`}
+                />
               )}
             </Menu.Item>
-            <Menu.Item>
-              {({ active }) => (
-                <a
-                  href='#'
-                  className={classNames(
-                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                    'flex px-4 py-2 text-sm'
-                  )}
-                >
-                  <TrashIcon
-                    className='mr-3 h-5 w-5 text-gray-400'
-                    aria-hidden='true'
+            {isOwnerOrRoot && (
+              <Menu.Item as={'button'} className='w-full'>
+                {({ active }) => (
+                  <MenuIconLink
+                    name={'Delete'}
+                    iconContainerClassName={
+                      '!bg-transparent !p-0 !text-red-600 !rounded-none'
+                    }
+                    nameClassName={
+                      'text-red-600 !text-md !font-medium !font-hind'
+                    }
+                    Icon={TrashIcon}
+                    role={'button'}
+                    onClick={onOpenModalHandler}
+                    className={`${
+                      active && 'bg-red-100'
+                    } flex px-4 py-2 text-sm`}
                   />
-                  <span>Delete</span>
-                </a>
-              )}
-            </Menu.Item>
+                )}
+              </Menu.Item>
+            )}
           </div>
         </Menu.Items>
       </Transition>

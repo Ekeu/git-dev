@@ -92,7 +92,7 @@ const Search = () => {
                       href='https://www.algolia.com/docsearch'
                       target='_blank'
                       rel='noopener noreferrer'
-                      className='flex items-center text-xs font-medium font-lato text-slate-500'
+                      className='flex items-center text-xs font-medium font-inter tracking-tight text-slate-500'
                     >
                       <span>Search by</span>
                       <AlgoliaSVG className={'ml-1 h-14 w-14'} />

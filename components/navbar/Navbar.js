@@ -12,7 +12,7 @@ import { Image } from 'cloudinary-react';
 import { useRouter } from 'next/router';
 
 import Search from '../search/search';
-import Button from '../common/button/button';
+import Button from '../common/button/Button';
 import MenuIconLink from './MenuIconLink';
 import Link from '../Link/Link';
 
@@ -38,7 +38,7 @@ const Navbar = ({ user }) => {
   };
 
   return (
-    <Disclosure as='nav' className='bg-violet-800 shadow-sm sticky top-0 z-10'>
+    <Disclosure as='nav' className='bg-violet-800 shadow-sm sticky top-0 z-20'>
       {({ open }) => (
         <>
           <div className='max-w-7xl mx-auto px-2 sm:px-4 lg:px-8'>
@@ -148,7 +148,7 @@ const Navbar = ({ user }) => {
                                 info={'See your profile'}
                                 infoClassName={'!text-sm text-slate-600'}
                                 className={`${
-                                  active && 'bg-slate-200'
+                                  active && 'bg-slate-100'
                                 } block px-4 py-2 rounded-md my-2`}
                               />
                             </Link>
@@ -166,7 +166,7 @@ const Navbar = ({ user }) => {
                                 info={'Help us improve gitdev.'}
                                 infoClassName={'!text-sm text-slate-600'}
                                 className={`${
-                                  active && 'bg-slate-200'
+                                  active && 'bg-slate-100'
                                 } block px-4 py-2 rounded-md my-2`}
                               />
                             </Link>
@@ -182,7 +182,7 @@ const Navbar = ({ user }) => {
                                 }
                                 Icon={CogIcon}
                                 className={`${
-                                  active && 'bg-slate-200'
+                                  active && 'bg-slate-100'
                                 } block px-4 py-2 rounded-md my-2`}
                               />
                             </Link>
@@ -197,7 +197,7 @@ const Navbar = ({ user }) => {
                               }
                               Icon={LogoutIcon}
                               className={`${
-                                active && 'bg-slate-200'
+                                active && 'bg-slate-100'
                               } block px-4 py-2 rounded-md my-2`}
                             />
                           )}
@@ -225,7 +225,7 @@ const Navbar = ({ user }) => {
                   ></Image>
                 </div>
                 <div className='ml-3'>
-                  <div className='text-base font-medium text-white font-lato'>
+                  <div className='text-base font-medium text-white font-inter'>
                     {name}
                   </div>
                   <div className='text-sm font-medium text-slate-300 font-hind'>
@@ -237,7 +237,7 @@ const Navbar = ({ user }) => {
                   <BellIcon className='h-6 w-6' aria-hidden='true' />
                 </Button>
               </div>
-              <div className='mt-3 px-2 space-y-1 font-lato'>
+              <div className='mt-3 px-2 space-y-1 font-inter'>
                 <Disclosure.Button
                   as={Link}
                   href='/'

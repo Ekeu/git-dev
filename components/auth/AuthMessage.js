@@ -19,7 +19,7 @@ const AuthMessage = ({ headlineClassName, subHeadLineClassName }) => {
   return (
     <>
       <h2
-        className={`mt-6 text-3xl font-extrabold font-lato text-slate-800 ${headlineClassName}`}
+        className={`mt-6 text-3xl font-extrabold font-inter tracking-tight text-slate-800 ${headlineClassName}`}
       >
         {isSignup ? SIGNUP_WELCOME : SIGNIN_WELCOME}
       </h2>

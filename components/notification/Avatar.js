@@ -1,11 +1,13 @@
 import React from 'react';
-import CustomNotification from './custom';
-import Button from '../common/button/button';
+import CustomNotification from './Custom';
+import Button from '../common/button/Button';
 
 const NotificationContent = ({ message, headline }) => {
   return (
     <>
-      <p className='text-sm font-medium font-lato text-slate-800'>{headline}</p>
+      <p className='text-sm font-medium font-inter text-slate-800'>
+        {headline}
+      </p>
       <p className='mt-1 text-sm font-hind text-slate-500'>{message}</p>
     </>
   );

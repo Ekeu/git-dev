@@ -14,7 +14,7 @@ const PostSchema = new Schema(
     },
     postBody: {
       type: String,
-      required: true,
+      trim: true,
     },
     postLocation: {
       type: String,
@@ -22,14 +22,26 @@ const PostSchema = new Schema(
     postImgURL: {
       type: String,
     },
+    pinned: {
+      type: Boolean,
+      default: false,
+    },
     postLikes: [
       {
-        user: {
-          type: Schema.Types.ObjectId,
-          ref: 'User',
-        },
+        type: Schema.Types.ObjectId,
+        ref: 'User',
       },
     ],
+    postClones: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+    cloneData: {
+      type: Schema.Types.ObjectId,
+      ref: 'Post',
+    },
     postComments: [],
   },
   {

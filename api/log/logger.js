@@ -17,7 +17,7 @@ const logger = winston.createLogger({
   levels: winston.config.npm.levels,
   transports: [
     new winston.transports.Console(options.console),
-    new Sentry(options.sentry),
+    //new Sentry(options.sentry),
   ],
   exitOnError: false,
 });

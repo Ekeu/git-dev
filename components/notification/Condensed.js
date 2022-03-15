@@ -1,6 +1,6 @@
 import React from 'react';
-import CustomNotification from './custom';
-import Button from '../common/button/button';
+import CustomNotification from './Custom';
+import Button from '../common/button/Button';
 import { XIcon } from '@heroicons/react/solid';
 
 const NotificationContent = ({ message, actionHandler, actionHandlerText }) => {

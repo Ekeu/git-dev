@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import CondensedNotification from './condensed';
-import SimpleNotification from './simple';
-import AvatarNotification from './avatar';
-import ActionsNotification from './actions';
+import CondensedNotification from './Condensed';
+import SimpleNotification from './Simple';
+import AvatarNotification from './Avatar';
+import ActionsNotification from './Actions';
 
 const Notification = ({
   type,

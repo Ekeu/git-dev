@@ -6,16 +6,18 @@ const {
   getAllPosts,
   getPostById,
   deletePost,
-  likeOrUnlikePost,
+  likePost,
+  clonePost,
   getAllPostLikes,
 } = require('../controllers/post');
 const { protect } = require('../middleware/auth');
 
 router.route('/').get(protect, getAllPosts).post(protect, createPost);
-router.route('/:id').get(protect, getPostById).delete(protect, deletePost);
+router.route('/:postID').get(protect, getPostById).delete(protect, deletePost);
+router.route('/:postID/clone').post(protect, clonePost);
 router
-  .route('/like/:postID')
-  .put(protect, likeOrUnlikePost)
+  .route('/:postID/like')
+  .put(protect, likePost)
   .get(protect, getAllPostLikes);
 
 module.exports = router;

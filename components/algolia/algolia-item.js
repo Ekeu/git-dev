@@ -18,7 +18,7 @@ const AlgoliaItem = ({ item, components, router }) => {
         height={'100%'}
       ></Image>
       <div className='ml-3'>
-        <p className='text-sm font-medium font-lato text-slate-800'>
+        <p className='text-sm font-medium font-inter text-slate-800'>
           <components.Snippet hit={item} attribute={'name'} />
         </p>
         <p className='text-sm text-slate-500'>{item?.username}</p>

@@ -13,6 +13,7 @@ module.exports = {
       gray: colors.gray,
       white: colors.white,
       red: colors.red,
+      rose: colors.rose,
       green: colors.green,
       violet: colors.violet,
       purple: colors.purple,
@@ -34,7 +35,7 @@ module.exports = {
 
       fontFamily: {
         hind: ['Hind', 'sans-serif'],
-        lato: ['Lato', 'sans-serif'],
+        inter: ['Inter', 'sans-serif'],
       },
 
       backgroundImage: {

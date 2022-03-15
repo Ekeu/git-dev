@@ -18,7 +18,7 @@ const createPost = async (req, res, next) => {
         "You can't create an empty post."
       );
 
-    const post = new Post({
+    const postInstaance = new Post({
       user: req.userID,
       postTitle: postTitle || '',
       postBody,
@@ -26,9 +26,10 @@ const createPost = async (req, res, next) => {
       postImgURL: postImgURL || '',
     });
 
-    const createdPost = await post.save();
+    const postDocument = await postInstaance.save();
+    const createdPost = await postDocument.populate('user');
 
-    res.json(createdPost._id);
+    res.json(createdPost);
   } catch (error) {
     next(error);
   }
@@ -42,6 +43,7 @@ const getAllPosts = async (req, res, next) => {
     const posts = await Post.find()
       .sort({ createdAt: -1 })
       .populate('user')
+      .populate('cloneData')
       .populate('postComments.user');
     res.json(posts);
   } catch (error) {
@@ -50,12 +52,13 @@ const getAllPosts = async (req, res, next) => {
 };
 
 // @desc Fetch single food
-// @route GET /api/v1/post/:id
+// @route GET /api/v1/post/:postID
 // @access Private
 const getPostById = async (req, res, next) => {
   try {
-    const post = await Post.findById(req.params.id)
+    const post = await Post.findById(req.params.postID)
       .populate('user')
+      .populate('cloneData')
       .populate('postComments.user');
 
     if (post) {
@@ -74,13 +77,13 @@ const getPostById = async (req, res, next) => {
 };
 
 // @desc Delete Post
-// @route DELETE /api/v1/posts/:id
+// @route DELETE /api/v1/posts/:postID
 // @access Private
 const deletePost = async (req, res, next) => {
   try {
     const { userID } = req;
 
-    const post = await Post.findById(req.params.id);
+    const post = await Post.findById(req.params.postID);
     if (post) {
       const user = await User.findById(userID);
 
@@ -113,10 +116,66 @@ const deletePost = async (req, res, next) => {
   }
 };
 
-// @desc Update Post Likes
-// @route PUT /api/v1/posts/like/:postID
+// @desc Like Post
+// @route PUT /api/v1/posts/:postID/like
 // @access Private
-const likeOrUnlikePost = async (req, res, next) => {
+const likePost = async (req, res, next) => {
+  try {
+    const { postID } = req.params;
+    const { userID } = req;
+
+    const post = await Post.findById(postID);
+    const user = await User.findById(userID);
+
+    if (!post)
+      throw new APIError(
+        'NOT FOUND',
+        HttpStatusCodes.NOT_FOUND,
+        true,
+        'Post not found.'
+      );
+
+    const userLikedPost = user.postsLiked && user.postsLiked.includes(postID);
+
+    const option = userLikedPost ? '$pull' : '$addToSet';
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userID,
+      {
+        [option]: {
+          postsLiked: postID,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    const updatedPost = await Post.findByIdAndUpdate(
+      postID,
+      {
+        [option]: {
+          postLikes: userID,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    res.json({
+      postsLiked: updatedUser.postsLiked,
+      postLikes: updatedPost.postLikes,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc Clone Post
+// @route PUT /api/v1/posts/:postID/clone
+// @access Private
+const clonePost = async (req, res, next) => {
   try {
     const { postID } = req.params;
     const { userID } = req;
@@ -131,21 +190,59 @@ const likeOrUnlikePost = async (req, res, next) => {
         'Post not found.'
       );
 
-    const isPostLiked = post.postLikes.filter(
-      (pl) => pl.user.toString() === userID
-    ).length;
+    const deletedPost = await Post.findOneAndDelete({
+      user: userID,
+      cloneData: postID,
+    });
 
-    if (isPostLiked) {
-      const userIdx = post.postLikes
-        .map((pl) => pl.user.toString())
-        .indexOf(userID);
-      await post.postLikes.splice(userIdx, 1);
-      await post.save();
-      res.status(201).send('Post Unliked.');
+    const option = deletedPost !== null ? '$pull' : '$addToSet';
+
+    let clonedPost = deletedPost;
+
+    if (deletedPost === null) {
+      clonedPost = await Post.create({
+        user: userID,
+        cloneData: postID,
+      }).populate('cloneData');
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userID,
+      {
+        [option]: {
+          postsCloned: clonedPost._id,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    const updatedPost = await Post.findByIdAndUpdate(
+      postID,
+      {
+        [option]: {
+          postClones: userID,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (deletedPost === null) {
+      res.json({
+        postsCloned: updatedUser.postsCloned,
+        postClones: updatedPost.postClones,
+        clonedPost,
+      });
     } else {
-      await post.postLikes.unshift({ user: userID });
-      await post.save();
-      res.status(201).send('Post Liked.');
+      res.json({
+        unclone: true,
+        cloneID: deletedPost._id.toString(),
+        postsCloned: updatedUser.postsCloned,
+        postClones: updatedPost.postClones,
+      });
     }
   } catch (error) {
     next(error);
@@ -153,7 +250,7 @@ const likeOrUnlikePost = async (req, res, next) => {
 };
 
 // @desc Get All Post Likes
-// @route GET /api/v1/posts/like/:postID
+// @route GET /api/v1/posts/:postID/like
 // @access Private
 const getAllPostLikes = async (req, res, next) => {
   try {
@@ -179,6 +276,7 @@ module.exports = {
   getAllPosts,
   getPostById,
   deletePost,
-  likeOrUnlikePost,
+  likePost,
+  clonePost,
   getAllPostLikes,
 };

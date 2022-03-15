@@ -28,6 +28,7 @@
     "js-cookie": "^3.0.1",
     "jsonwebtoken": "^8.5.1",
     "luxon": "^2.3.1",
+    "millify": "^4.0.0",
     "mongoose": "^6.2.2",
     "mongoose-algolia": "^1.10.1",
     "morgan": "^1.10.0",

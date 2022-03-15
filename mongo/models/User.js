@@ -33,6 +33,18 @@ const UserSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    postsLiked: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Post',
+      },
+    ],
+    postsCloned: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Post',
+      },
+    ],
     unReadMessage: {
       type: Boolean,
       default: false,
