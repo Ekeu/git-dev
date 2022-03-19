@@ -24,7 +24,8 @@ const TextArea = forwardRef(
         <div className={`mt-1 ${textAreaBodyClassName}`}>
           <textarea
             ref={ref}
-            className={`shadow-sm focus:ring-violet-800 focus:border-violet-800 block w-full sm:text-base font-hind border-slate-300 placeholder-slate-500 text-slate-800 rounded-md ${textAreaClassName}`}
+            id={id}
+            className={`shadow-sm focus:ring-violet-500 focus:border-violet-500 block w-full sm:text-base font-hind border-slate-300 placeholder-slate-500 text-slate-800 rounded-md ${textAreaClassName}`}
             {...otherProps}
           />
         </div>

@@ -63,7 +63,7 @@ const Signup = () => {
           type: 'simple',
           icon: {
             Component: XCircleIcon,
-            className: 'text-red-400',
+            className: 'text-red-500',
           },
           headline: 'Registration Error',
           message,

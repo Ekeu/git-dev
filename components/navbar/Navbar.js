@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useContext } from 'react';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import {
   BellIcon,
@@ -17,8 +17,10 @@ import MenuIconLink from './MenuIconLink';
 import Link from '../Link/Link';
 
 import { authService } from '../../services/';
+import { UserContext } from '../../context';
 
-const Navbar = ({ user }) => {
+const Navbar = () => {
+  const { user } = useContext(UserContext);
   const {
     username,
     name,

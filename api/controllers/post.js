@@ -1,7 +1,9 @@
 const User = require('../../mongo/models/User');
 const Post = require('../../mongo/models/Post');
+const Comment = require('../../mongo/models/Comment');
 const APIError = require('../errors/apiError');
 const HttpStatusCodes = require('../errors/httpStatusCodes');
+const mongoose = require('mongoose');
 
 // @desc Create Post
 // @route POST /api/v1/posts
@@ -43,15 +45,20 @@ const getAllPosts = async (req, res, next) => {
     const posts = await Post.find()
       .sort({ createdAt: -1 })
       .populate('user')
-      .populate('cloneData')
-      .populate('postComments.user');
+      .populate({
+        path: 'cloneData',
+        populate: {
+          path: 'user',
+          model: 'User',
+        },
+      });
     res.json(posts);
   } catch (error) {
     next(error);
   }
 };
 
-// @desc Fetch single food
+// @desc Get Single Post
 // @route GET /api/v1/post/:postID
 // @access Private
 const getPostById = async (req, res, next) => {
@@ -59,10 +66,84 @@ const getPostById = async (req, res, next) => {
     const post = await Post.findById(req.params.postID)
       .populate('user')
       .populate('cloneData')
-      .populate('postComments.user');
+      .populate({
+        path: 'postComments',
+        populate: {
+          path: 'user',
+          model: 'User',
+        },
+      });
 
     if (post) {
       res.json(post);
+    } else {
+      throw new APIError(
+        'NOT FOUND',
+        HttpStatusCodes.NOT_FOUND,
+        true,
+        'Post not found.'
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc Get Post by Username
+// @route GET /api/v1/post/:username/:postID
+// @access Private
+const getPostByUsername = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ username: req.params.username });
+
+    if (!user) {
+      throw new APIError(
+        'NOT FOUND',
+        HttpStatusCodes.NOT_FOUND,
+        true,
+        'User not found.'
+      );
+    }
+
+    const post = await Post.findById(req.params.postID)
+      .where('user')
+      .equals(user._id)
+      .populate('user');
+
+    if (post) {
+      const comments = await Comment.find({ post: post._id })
+        .sort({ createdAt: -1 })
+        .limit(req.body.limit || 5)
+        .populate('user')
+        .populate('commentReplies.user');
+      res.json({ post, comments });
+    } else {
+      throw new APIError(
+        'NOT FOUND',
+        HttpStatusCodes.NOT_FOUND,
+        true,
+        'Post not found.'
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc Get Post comments
+// @route GET /api/v1/post/:postID/comments
+// @access Private
+const getPostComments = async (req, res, next) => {
+  try {
+    const post = await Post.findById(req.params.postID).populate('user');
+
+    if (post) {
+      const comments = await Comment.find({ post: post._id })
+        .sort({ createdAt: -1 })
+        .skip(req.body.limit)
+        .limit(5)
+        .populate('user');
+      res.json({ comments });
     } else {
       throw new APIError(
         'NOT FOUND',
@@ -271,6 +352,121 @@ const getAllPostLikes = async (req, res, next) => {
   }
 };
 
+// @desc Comment Post
+// @route POST /api/v1/posts/:postID/comment
+// @access Private
+const commentPost = async (req, res, next) => {
+  try {
+    const { postID } = req.params;
+    const { comment } = req.body;
+
+    if (comment.trim().length < 1)
+      throw new APIError(
+        'BAD REQUEST',
+        HttpStatusCodes.BAD_REQUEST,
+        true,
+        "Can't create an empty comment."
+      );
+
+    const post = await Post.findById(postID);
+
+    if (!post)
+      throw new APIError(
+        'NOT FOUND',
+        HttpStatusCodes.NOT_FOUND,
+        true,
+        'Post not found.'
+      );
+
+    const commentInstance = new Comment({
+      user: req.userID,
+      comment,
+      post: postID,
+    });
+
+    const commentDocument = await commentInstance.save();
+    post.postComments.push(commentDocument._id);
+
+    await post.save();
+
+    res.status(201).send('Comment added successfully!');
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc Reply to Comment
+// @route GET /api/v1/posts/:postID/reply
+// @access Private
+const addReply = async (req, res, next) => {
+  try {
+    const { postID } = req.params;
+    const { parentID, reply } = req.body;
+
+    if (reply.trim().length < 1)
+      throw new APIError(
+        'BAD REQUEST',
+        HttpStatusCodes.BAD_REQUEST,
+        true,
+        "Can't create an empty reply."
+      );
+
+    const post = await Post.findById(postID);
+
+    if (!post)
+      throw new APIError(
+        'NOT FOUND',
+        HttpStatusCodes.NOT_FOUND,
+        true,
+        'Post not found.'
+      );
+
+    await Comment.updateOne(
+      { _id: parentID, post: postID },
+      {
+        $push: {
+          commentReplies: {
+            user: req.userID,
+            reply,
+            commentLikes: [],
+            commentUnLikes: [],
+          },
+        },
+      }
+    );
+
+    res.status(201).send('Reply added successfully!');
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc Get Updated Comment
+// @route GET /api/v1/posts/comment/:commentID
+// @access Private
+const getUpdatedComment = async (req, res, next) => {
+  try {
+    const { commentID } = req.params;
+
+    const comment = await Comment.findById(commentID)
+      .populate('user')
+      .populate('post')
+      .populate('commentReplies.user');
+
+    if (!comment)
+      throw new APIError(
+        'NOT FOUND',
+        HttpStatusCodes.NOT_FOUND,
+        true,
+        'Comment not found.'
+      );
+
+    res.status(201).json({ comment });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createPost,
   getAllPosts,
@@ -279,4 +475,9 @@ module.exports = {
   likePost,
   clonePost,
   getAllPostLikes,
+  getPostByUsername,
+  commentPost,
+  getPostComments,
+  addReply,
+  getUpdatedComment,
 };

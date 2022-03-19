@@ -3,6 +3,8 @@ export {
   NotificationWrapper,
 } from './Notification/NotificationWrapper';
 
-export { PostContext, PostWrapper } from './Post/PostWrapper';
+export { PostsContext, PostsWrapper } from './Posts/PostsWrapper';
 
 export { UserContext, UserWrapper } from './User/UserWrapper';
+
+export { PostContext, PostWrapper } from './Post/PostWrapper';

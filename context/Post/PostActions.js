@@ -1,43 +1,29 @@
-import {
-  CREATE_POST,
-  DELETE_POST,
-  LIKE_POST,
-  SET_POSTS,
-  UPDATE_POST_CLONES,
-} from './PostTypes';
+import { SET_POST, UPDATE_COMMENT, UPDATE_COMMENTS } from './PostTypes';
 
-export const setPosts = (posts) => ({
-  type: SET_POSTS,
-  payload: {
-    posts,
-  },
-});
+export const setPost = (data) => {
+  console.log(data);
+  return {
+    type: SET_POST,
+    payload: {
+      data,
+    },
+  };
+};
 
-export const deletePost = (postID) => ({
-  type: DELETE_POST,
-  payload: {
-    postID,
-  },
-});
+export const updateComments = (comments) => {
+  return {
+    type: UPDATE_COMMENTS,
+    payload: {
+      comments,
+    },
+  };
+};
 
-export const updatePostLikes = (postLikes, postID) => ({
-  type: LIKE_POST,
-  payload: {
-    postLikes,
-    postID,
-  },
-});
-export const updatePostClones = (postClones, postID) => ({
-  type: UPDATE_POST_CLONES,
-  payload: {
-    postClones,
-    postID,
-  },
-});
-
-export const createPost = (post) => ({
-  type: CREATE_POST,
-  payload: {
-    post,
-  },
-});
+export const updateComment = (updatedComment) => {
+  return {
+    type: UPDATE_COMMENT,
+    payload: {
+      updatedComment,
+    },
+  };
+};

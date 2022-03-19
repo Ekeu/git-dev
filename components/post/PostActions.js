@@ -6,14 +6,16 @@ import PostAction from './PostAction';
 import RetweetIcon from '../icons/RetweetIcon';
 
 const PostActions = ({
+  className,
   postLikes,
   postClones,
   onLikePostHandler,
   onClonePostHandler,
+  onOpenReplyPostHandler,
   user,
 }) => {
-  const isLiked = postLikes.includes(user?._id);
-  const isCloned = postClones.includes(user?._id);
+  const isLiked = postLikes?.includes(user?._id);
+  const isCloned = postClones?.includes(user?._id);
   const [action, setAction] = useState('like');
   const [animationCounter, setAnimationCounter] = useState(
     'inline-flex opacity-100 translate-x-0 translate-y-0 duration-100 ease-in-out'
@@ -80,8 +82,8 @@ const PostActions = ({
   };
 
   return (
-    <div className='mt-6 flex justify-between space-x-8'>
-      <div className='flex space-x-6'>
+    <div className={`mt-6 ${className}`}>
+      <div className='flex justify-between'>
         <PostAction
           containerClassName={'group'}
           buttonClassname={'items-center'}
@@ -99,12 +101,12 @@ const PostActions = ({
               'like',
               onLikePostHandler,
               isLiked,
-              postLikes.length
+              postLikes?.length
             )
           }
           Icon={HeartIcon}
         >
-          {postLikes.length > 0 && millify(postLikes.length)}
+          {postLikes?.length > 0 && millify(postLikes?.length)}
         </PostAction>
         <PostAction
           containerClassName={'group'}
@@ -113,6 +115,7 @@ const PostActions = ({
           iconClassName={'text-slate-500 group-hover:text-sky-500'}
           childrenClassName={'text-slate-500 group-hover:text-sky-500 mt-1'}
           Icon={ChatAltIcon}
+          onClick={onOpenReplyPostHandler}
         >
           5,436
         </PostAction>
@@ -133,15 +136,13 @@ const PostActions = ({
               'clone',
               onClonePostHandler,
               isCloned,
-              postClones.length
+              postClones?.length
             )
           }
           Icon={RetweetIcon}
         >
-          {postClones.length > 0 && millify(postClones.length)}
+          {postClones?.length > 0 && millify(postClones?.length)}
         </PostAction>
-      </div>
-      <div className='flex'>
         <PostAction
           containerClassName={'group'}
           buttonClassname={'items-center'}
@@ -149,9 +150,7 @@ const PostActions = ({
           iconClassName={'text-slate-500 group-hover:text-violet-500'}
           childrenClassName={'text-slate-500 group-hover:text-violet-500 mt-1'}
           Icon={ShareIcon}
-        >
-          Share
-        </PostAction>
+        ></PostAction>
       </div>
     </div>
   );

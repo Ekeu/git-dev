@@ -42,7 +42,12 @@ const PostSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'Post',
     },
-    postComments: [],
+    postComments: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Comment',
+      },
+    ],
   },
   {
     timestamps: true,

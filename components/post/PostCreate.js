@@ -11,7 +11,6 @@ import PostLocation from './PostLocation';
 import PostCreateActions from './PostCreateActions';
 import Modal from '../modal/Modal';
 import PostCharacterCount from './PostCharacterCount';
-import Portal from '../hoc/Portal';
 import {
   MAX_CHAR_COUNT,
   RING_ORANGE,
@@ -23,11 +22,11 @@ import PostMedia from './PostMedia';
 
 import { postService } from '../../services/post/post';
 import { cloudinaryServices } from '../../services/cloudinary/cloudinary';
-import { NotificationContext, PostContext, UserContext } from '../../context';
+import { NotificationContext, PostsContext } from '../../context';
 import { setNotification } from '../../context/Notification/NotificationActions';
 import { XCircleIcon } from '@heroicons/react/solid';
 import { errorsService } from '../../services';
-import { createPost } from '../../context/Post/PostActions';
+import { createPost } from '../../context/Posts/PostsActions';
 import trim from '../../utils/trim';
 
 let autocomplete;
@@ -38,7 +37,7 @@ const PostCreate = ({ user }) => {
 
   const inputImageRef = useRef(null);
   const { dispatch } = useContext(NotificationContext);
-  const { dispatch: dispatchPost } = useContext(PostContext);
+  const { dispatch: dispatchPost } = useContext(PostsContext);
 
   const [postTitle, setPostTitle] = useState('');
   const [postDescription, setPostDescription] = useState('');
@@ -68,7 +67,6 @@ const PostCreate = ({ user }) => {
     mediaFile === null;
 
   const onEmojiChangeHandler = (e, emojiObject) => {
-    console.log(postDescriptionRef);
     const cursorPosition = postDescriptionRef.current.selectionStart;
     const newPostDescription =
       postDescription.slice(0, cursorPosition) +
@@ -192,7 +190,7 @@ const PostCreate = ({ user }) => {
               type: 'simple',
               icon: {
                 Component: XCircleIcon,
-                className: 'text-red-400',
+                className: 'text-red-500',
               },
               headline: 'Image upload error',
               message:
@@ -229,7 +227,7 @@ const PostCreate = ({ user }) => {
           type: 'simple',
           icon: {
             Component: XCircleIcon,
-            className: 'text-red-400',
+            className: 'text-red-500',
           },
           headline: 'Post Error',
           message,

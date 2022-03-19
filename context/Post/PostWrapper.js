@@ -1,13 +1,18 @@
-import React, { useReducer, createContext } from 'react';
+import React, { createContext, useReducer } from 'react';
 
-import postReducer from './PostReducer';
+import PostReducer from './PostReducer';
 
 export const PostContext = createContext();
 
 export const PostProvider = PostContext.Provider;
 
 export const PostWrapper = ({ children }) => {
-  const [posts, dispatch] = useReducer(postReducer, []);
-
-  return <PostProvider value={{ posts, dispatch }}>{children}</PostProvider>;
+  const [data, dispatch] = useReducer(PostReducer, {
+    post: {},
+    comments: [],
+    reload: false,
+    update: null,
+    increment: 5,
+  });
+  return <PostProvider value={{ data, dispatch }}>{children}</PostProvider>;
 };

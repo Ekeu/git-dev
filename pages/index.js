@@ -6,12 +6,16 @@ import Navbar from '../components/navbar/Navbar';
 import { postService } from '../services';
 import Post from '../components/post/Post';
 import PostCreate from '../components/post/PostCreate';
-import { PostContext, UserContext } from '../context';
-import { setPosts } from '../context/Post/PostActions';
+import { PostsContext, UserContext } from '../context';
+import { setPosts } from '../context/Posts/PostsActions';
 import { setUser } from '../context/User/UserActions';
+import PageGridLayout from '../components/layout/PageGridLayout';
+import PageGridLeftLayout from '../components/layout/PageGridLeftLayout';
+import PageGridCenterLayout from '../components/layout/PageGridCenterLayout';
+import PageGridRightLayout from '../components/layout/PageGridRightLayout';
 
 export default function Home({ user, postsData, error }) {
-  const { posts, dispatch: dispatchPost } = useContext(PostContext);
+  const { posts, dispatch: dispatchPost } = useContext(PostsContext);
   const { dispatch: dispatchUser } = useContext(UserContext);
 
   if (error) {
@@ -26,17 +30,11 @@ export default function Home({ user, postsData, error }) {
   return (
     <Fragment>
       <div className='min-h-full'>
-        <Navbar user={user} />
-
+        <Navbar />
         <div className='py-10'>
-          <div className='max-w-3xl mx-auto sm:px-6 lg:max-w-7xl lg:px-8 lg:grid lg:grid-cols-12 lg:gap-8'>
-            <div className='hidden lg:block lg:col-span-3 xl:col-span-3'>
-              <nav
-                aria-label='Sidebar'
-                className='sticky top-28 divide-y divide-slate-300'
-              ></nav>
-            </div>
-            <main className='lg:col-span-9 xl:col-span-6 mt-2'>
+          <PageGridLayout>
+            <PageGridLeftLayout></PageGridLeftLayout>
+            <PageGridCenterLayout>
               <div className='px-4 sm:px-0'>
                 <PostCreate user={user} />
               </div>
@@ -52,11 +50,9 @@ export default function Home({ user, postsData, error }) {
                   ))}
                 </ul>
               </div>
-            </main>
-            <aside className='hidden xl:block xl:col-span-3'>
-              <div className='sticky top-28 space-y-4'></div>
-            </aside>
-          </div>
+            </PageGridCenterLayout>
+            <PageGridRightLayout></PageGridRightLayout>
+          </PageGridLayout>
         </div>
       </div>
     </Fragment>
@@ -92,7 +88,7 @@ export async function getServerSideProps(ctx) {
     return {
       props: {
         error: {
-          message: error.message,
+          message: error.message ? error.message : error,
         },
       },
     };

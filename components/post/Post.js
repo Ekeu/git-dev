@@ -8,7 +8,7 @@ import PostActions from './PostActions';
 import Modal from '../modal/Modal';
 import PostDelete from './PostDelete';
 import { errorsService, postService } from '../../services';
-import { NotificationContext, PostContext, UserContext } from '../../context';
+import { NotificationContext, PostsContext, UserContext } from '../../context';
 import { setNotification } from '../../context/Notification/NotificationActions';
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/solid';
 import {
@@ -16,29 +16,30 @@ import {
   deletePost,
   updatePostClones,
   updatePostLikes,
-} from '../../context/Post/PostActions';
+} from '../../context/Posts/PostsActions';
 import {
   updatePostsCloned,
   updatePostsLiked,
 } from '../../context/User/UserActions';
 import RetweetIcon from '../icons/RetweetIcon';
-import Comments from '../comments/Comments';
+import PostReply from './PostReply';
 
 const Post = ({ post, loggedInUser }) => {
   const { dispatch } = useContext(NotificationContext);
-  const { dispatch: dispatchPost } = useContext(PostContext);
+  const { dispatch: dispatchPost } = useContext(PostsContext);
   const { dispatch: dispatchUser } = useContext(UserContext);
 
   const cancelButtonRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const [openPostModal, setOpenPostModal] = useState(false);
   const [isClone, setIsClone] = useState(false);
   const [clonedBy, setClonedBy] = useState(null);
   const [postData, setPostData] = useState(null);
+  const [postAuthor, setPostAuthor] = useState({});
 
   const {
     _id = '',
-    user = {},
     postTitle = '',
     postBody = '',
     postImgURL = '',
@@ -48,10 +49,14 @@ const Post = ({ post, loggedInUser }) => {
     postLocation = '',
   } = postData || {};
 
-  const { name, profileImageURL, username } = user;
+  const { name, profileImageURL, username } = postAuthor;
 
   const onOpenModalHandler = () => {
     setOpenModal(true);
+  };
+
+  const onOpenReplyPostHandler = () => {
+    setOpenPostModal(true);
   };
 
   const onCancelDeletePostHandler = () => {
@@ -86,7 +91,7 @@ const Post = ({ post, loggedInUser }) => {
           type: 'simple',
           icon: {
             Component: XCircleIcon,
-            className: 'text-red-400',
+            className: 'text-red-500',
           },
           headline: 'Delete Error',
           message,
@@ -107,7 +112,7 @@ const Post = ({ post, loggedInUser }) => {
           type: 'simple',
           icon: {
             Component: XCircleIcon,
-            className: 'text-red-400',
+            className: 'text-red-500',
           },
           headline: 'Like Error',
           message,
@@ -125,7 +130,6 @@ const Post = ({ post, loggedInUser }) => {
         dispatchPost(updatePostClones(data.postClones, _id));
         dispatchUser(updatePostsCloned(data.postsCloned));
       } else {
-        console.log('CLONE ', data.clonedPost);
         dispatchPost(createPost(data.clonedPost));
         dispatchPost(updatePostClones(data.postClones, _id));
         dispatchUser(updatePostsCloned(data.postsCloned));
@@ -137,7 +141,7 @@ const Post = ({ post, loggedInUser }) => {
           type: 'simple',
           icon: {
             Component: XCircleIcon,
-            className: 'text-red-400',
+            className: 'text-red-500',
           },
           headline: 'Clone Error',
           message,
@@ -149,15 +153,23 @@ const Post = ({ post, loggedInUser }) => {
   useEffect(() => {
     const postIsCloned = post?.cloneData !== undefined;
     const postWasClonedBy = postIsCloned ? post?.user.username : null;
-    const data = postIsCloned
-      ? {
-          ...post.cloneData,
-          user: post.user,
-        }
-      : post;
+
+    if (postIsCloned) {
+      const { cloneData, ...restPost } = post;
+      const { user, ...restCloneData } = cloneData;
+
+      setPostData({
+        ...restPost,
+        ...restCloneData,
+        author: user,
+      });
+      setPostAuthor(user);
+    } else {
+      setPostData(post);
+      setPostAuthor(post?.user);
+    }
     setIsClone(postIsCloned);
     setClonedBy(postWasClonedBy);
-    setPostData(data);
   }, [post]);
 
   return (
@@ -175,7 +187,7 @@ const Post = ({ post, loggedInUser }) => {
                 loading='lazy'
                 width={'100%'}
                 height={'100%'}
-              ></Image>
+              />
             </div>
             <div className='min-w-0 flex-1 font-hind'>
               {isClone && (
@@ -238,9 +250,9 @@ const Post = ({ post, loggedInUser }) => {
           dangerouslySetInnerHTML={{ __html: postBody }}
         />
         {postImgURL && (
-          <div className='w-full aspect-w-1 aspect-h-1 mt-2'>
+          <div className='w-full mt-2'>
             <Image
-              className='object-cover shadow-sm rounded-md'
+              className='object-contain shadow-sm rounded-md'
               cloudName='dmcookpro'
               publicId={postImgURL}
               alt={`Image about <<${postBody}>>`}
@@ -255,11 +267,10 @@ const Post = ({ post, loggedInUser }) => {
           postLikes={postLikes}
           postClones={postClones}
           onLikePostHandler={onLikePostHandler}
+          onOpenReplyPostHandler={onOpenReplyPostHandler}
           onClonePostHandler={onClonePostHandler}
           user={loggedInUser}
         />
-
-        <Comments currentUserId={user?._id} />
       </article>
 
       <Modal
@@ -275,6 +286,16 @@ const Post = ({ post, loggedInUser }) => {
           onDeletePostHandler={onDeletePostHandler}
           onCancelDeletePostHandler={onCancelDeletePostHandler}
         />
+      </Modal>
+
+      <Modal
+        openModal={openPostModal}
+        setOpenModal={setOpenPostModal}
+        cancelButtonRef={cancelButtonRef}
+        className={'sm:p-6 sm:w-full'}
+        center
+      >
+        <PostReply post={postData} cancelButtonRef={cancelButtonRef} />
       </Modal>
     </>
   );

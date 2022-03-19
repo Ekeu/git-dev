@@ -48,7 +48,7 @@ const Signin = () => {
           type: 'simple',
           icon: {
             Component: XCircleIcon,
-            className: 'text-red-400',
+            className: 'text-red-500',
           },
           headline: 'Login Error',
           message,
@@ -59,11 +59,11 @@ const Signin = () => {
 
   useEffect(() => {
     document.documentElement.classList.add('h-full');
-    document.body.classList.add('h-full');
+    document.body.classList.add('h-full', 'overflow-hidden');
 
     return () => {
       document.documentElement.classList.remove('h-full');
-      document.body.classList.remove('h-full');
+      document.body.classList.remove('h-full', 'overflow-hidden');
     };
   }, []);
 
