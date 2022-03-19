@@ -2,10 +2,10 @@ const SIGNIN = 'Sign In';
 const SIGNIN_ROUTE = '/auth/signin';
 const SIGNUP = 'Sign Up';
 const SIGNUP_ROUTE = '/auth/signup';
-const SIGNUP_WELCOME = 'Welcome to GitDev';
+const SIGNUP_WELCOME = 'Welcome to gitdev';
 const SIGNIN_WELCOME = 'Welcome Back!';
 const SIGNUP_SWITCH = 'Create an account';
-const SIGNIN_SWITCH = 'Need a GitDev account?';
+const SIGNIN_SWITCH = 'Need a gitdev account?';
 const USERNAME_AVAILABLE = 'Username available!';
 const USERNAME_REGEX_PATTERN =
   /^[a-zA-Z0-9]([._-](?![._-])|[a-zA-Z0-9]){3,18}[a-zA-Z0-9]$/;

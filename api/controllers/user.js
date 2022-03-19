@@ -1,4 +1,3 @@
-const bycrypt = require('bcryptjs');
 const validator = require('validator');
 
 const User = require('../../mongo/models/User');
@@ -17,21 +16,21 @@ const { generateToken } = require('../utils/generateToken');
 const authUser = async (req, res, next) => {
   const { email, password } = req.body.user;
 
-  if (!validator.isEmail(email))
-    throw new APIError(
-      'BAD REQUEST',
-      HttpStatusCodes.BAD_REQUEST,
-      true,
-      'Invalid Email Address.'
-    );
-
   try {
+    if (!validator.isEmail(email))
+      throw new APIError(
+        'BAD REQUEST',
+        HttpStatusCodes.BAD_REQUEST,
+        true,
+        'Invalid Email Address.'
+      );
+
     const user = await User.findOne({ email: email.toLowerCase() }).select(
       '+password'
     );
     if (user && (await user.matchPasswords(password))) {
       res.status(200).json({
-        token: generateToken(user._id),
+        token: generateToken(user._id.toString()),
       });
     } else {
       throw new APIError(
@@ -39,6 +38,32 @@ const authUser = async (req, res, next) => {
         HttpStatusCodes.UNAUTHORIZED,
         true,
         'Invalid email or password.'
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc Get user profile
+// @route GET /api/v1/users/profile
+// @access Private
+const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.userID);
+
+    if (user) {
+      const followers = await Follower.findOne({ user: req.userID });
+      res.status(200).json({
+        user,
+        followers,
+      });
+    } else {
+      throw new APIError(
+        'NOT FOUND',
+        HttpStatusCodes.NOT_FOUND,
+        true,
+        'User not found.'
       );
     }
   } catch (error) {
@@ -92,7 +117,7 @@ const registerUser = async (req, res, next) => {
     await user.save();
 
     res.status(200).json({
-      token: generateToken(user._id),
+      token: generateToken(user._id.toString()),
     });
   } catch (error) {
     next(error);
@@ -141,5 +166,6 @@ const isUsernameAvailable = async (req, res, next) => {
 module.exports = {
   authUser,
   registerUser,
+  getUserProfile,
   isUsernameAvailable,
 };

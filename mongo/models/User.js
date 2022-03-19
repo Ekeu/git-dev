@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const mongooseAlgolia = require('mongoose-algolia');
 const bycrypt = require('bcryptjs');
 
 const Schema = mongoose.Schema;
@@ -32,6 +33,18 @@ const UserSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    postsLiked: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Post',
+      },
+    ],
+    postsCloned: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Post',
+      },
+    ],
     unReadMessage: {
       type: Boolean,
       default: false,
@@ -69,4 +82,18 @@ UserSchema.pre('save', async function (next) {
   this.password = await bycrypt.hash(this.password, salt);
 });
 
-module.exports = mongoose.model('User', UserSchema);
+UserSchema.plugin(mongooseAlgolia, {
+  appId: process.env.NEXT_PUBLIC_ALGOLIA_APP_ID,
+  apiKey: process.env.ALGOLIA_ADMIN_API_KEY,
+  indexName: 'users',
+  selector: '-password, -resetToken, -role',
+});
+
+const User = mongoose.model('User', UserSchema);
+
+User.SyncToAlgolia();
+User.SetAlgoliaSettings({
+  searchableAttributes: ['name', 'username', 'email'],
+});
+
+module.exports = User;

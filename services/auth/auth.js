@@ -20,9 +20,14 @@ const register = async (user) => {
     `${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/`,
     {
       user,
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
     }
   );
-  setUserToken(res.data);
+  setUserToken(res.data.token);
 };
 
 const login = async (user) => {
@@ -30,13 +35,26 @@ const login = async (user) => {
     `${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/signin`,
     {
       user,
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
     }
   );
-  setUserToken(res.data);
+  setUserToken(res.data.token);
 };
 
-export const userService = {
+const signout = (email) => {
+  Cookie.set('u_email', email);
+  Cookie.remove('u_token');
+  Router.push('/auth/signin');
+  Router.reload();
+};
+
+export const authService = {
   checkUsername,
   register,
   login,
+  signout,
 };

@@ -7,11 +7,12 @@ import {
   CheckIcon,
   XCircleIcon,
 } from '@heroicons/react/solid';
+import { parseCookies } from 'nookies';
 
-import Input from '../../components/common/input/input';
-import Form from '../../components/common/form/form';
-import AuthMessage from '../../components/auth/auth-message';
-import Button from '../../components/common/button/button';
+import Input from '../../components/common/input/Input';
+import Form from '../../components/common/form/Form';
+import AuthMessage from '../../components/auth/AuthMessage';
+import Button from '../../components/common/button/Button';
 import {
   AUTH_EMAIL_CONFIG,
   AUTH_NAME_CONFIG,
@@ -22,7 +23,7 @@ import {
 } from '../../constants/auth';
 import { NotificationContext } from '../../context';
 import { setNotification } from '../../context/Notification/NotificationActions';
-import { userService, errorsService } from '../../services';
+import { authService, errorsService } from '../../services';
 
 const Signup = () => {
   const [showPassword, setShowPassord] = useState(false);
@@ -53,7 +54,7 @@ const Signup = () => {
 
     try {
       setLoading(true);
-      await userService.register({ name, username, email, password });
+      await authService.register({ name, username, email, password });
     } catch (error) {
       setLoading(false);
       const message = errorsService.catchErrors(error);
@@ -62,7 +63,7 @@ const Signup = () => {
           type: 'simple',
           icon: {
             Component: XCircleIcon,
-            className: 'text-red-400',
+            className: 'text-red-500',
           },
           headline: 'Registration Error',
           message,
@@ -87,7 +88,7 @@ const Signup = () => {
     setIsUsernameAvailable(false);
     const checkUsernameHandler = async (username) => {
       try {
-        const res = await userService.checkUsername(username);
+        const res = await authService.checkUsername(username);
         if (res === USERNAME_AVAILABLE) {
           clearErrors('username');
           setIsUsernameAvailable(true);
@@ -132,8 +133,9 @@ const Signup = () => {
               className='w-auto h-12'
               cloudName='dmcookpro'
               publicId={'git-dev/gitdev-logo.svg'}
-              alt='GitDev'
+              alt='gitdev'
               draggable={false}
+              loading='lazy'
               width={'100%'}
               height={'100%'}
             ></Image>
@@ -232,5 +234,22 @@ const Signup = () => {
     </div>
   );
 };
+
+export async function getServerSideProps(ctx) {
+  const { u_token } = parseCookies(ctx);
+
+  if (u_token) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
+}
 
 export default Signup;

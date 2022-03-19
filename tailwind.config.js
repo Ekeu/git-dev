@@ -13,6 +13,7 @@ module.exports = {
       gray: colors.gray,
       white: colors.white,
       red: colors.red,
+      rose: colors.rose,
       green: colors.green,
       violet: colors.violet,
       purple: colors.purple,
@@ -29,11 +30,12 @@ module.exports = {
         secondary: '#FFBD59',
         tertiary: '#9A5AA9',
         neutral: '#373737',
+        algolia: '#5468ff',
       },
 
       fontFamily: {
         hind: ['Hind', 'sans-serif'],
-        lato: ['Lato', 'sans-serif'],
+        inter: ['Inter', 'sans-serif'],
       },
 
       backgroundImage: {

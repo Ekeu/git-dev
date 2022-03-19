@@ -1,9 +1,9 @@
 import React, { createContext, useReducer } from 'react';
 import { toast } from 'react-toastify';
 
-import Notification from '../../components/notification/notification';
+import Notification from '../../components/notification/Notification';
 import { setNotification } from './NotificationActions';
-import { notificationReducer } from './NotificationReducer';
+import notificationReducer from './NotificationReducer';
 
 export const NotificationContext = createContext();
 

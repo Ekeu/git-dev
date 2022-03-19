@@ -1,0 +1,3 @@
+export const SET_POST = 'SET_POST';
+export const UPDATE_COMMENTS = 'UPDATE_COMMENTS';
+export const UPDATE_COMMENT = 'UPDATE_COMMENT';

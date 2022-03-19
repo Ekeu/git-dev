@@ -3,16 +3,18 @@ import PropTypes from 'prop-types';
 import { EyeOffIcon, EyeIcon, XCircleIcon } from '@heroicons/react/solid';
 import { Image } from 'cloudinary-react';
 import { useForm } from 'react-hook-form';
+import { parseCookies } from 'nookies';
 
-import Form from '../../components/common/form/form';
-import AuthMessage from '../../components/auth/auth-message';
+import Form from '../../components/common/form/Form';
+import AuthMessage from '../../components/auth/AuthMessage';
 import { AUTH_EMAIL_CONFIG, SIGNIN } from '../../constants/auth';
-import Input from '../../components/common/input/input';
-import Button from '../../components/common/button/button';
+import Input from '../../components/common/input/Input';
+import Button from '../../components/common/button/Button';
 import Link from 'next/link';
 import { NotificationContext } from '../../context';
-import { userService, errorsService } from '../../services';
+import { authService, errorsService } from '../../services';
 import { setNotification } from '../../context/Notification/NotificationActions';
+import Cookies from 'js-cookie';
 
 const Signin = () => {
   const [showPassword, setShowPassord] = useState(false);
@@ -23,6 +25,7 @@ const Signin = () => {
   const {
     register,
     formState: { errors },
+    setValue,
     handleSubmit,
   } = useForm({
     defaultValues: {
@@ -36,7 +39,7 @@ const Signin = () => {
   const onSubmit = handleSubmit(async ({ email, password }) => {
     setLoading(true);
     try {
-      await userService.login({ email, password });
+      await authService.login({ email, password });
     } catch (error) {
       setLoading(false);
       const message = errorsService.catchErrors(error);
@@ -45,7 +48,7 @@ const Signin = () => {
           type: 'simple',
           icon: {
             Component: XCircleIcon,
-            className: 'text-red-400',
+            className: 'text-red-500',
           },
           headline: 'Login Error',
           message,
@@ -56,13 +59,20 @@ const Signin = () => {
 
   useEffect(() => {
     document.documentElement.classList.add('h-full');
-    document.body.classList.add('h-full');
+    document.body.classList.add('h-full', 'overflow-hidden');
 
     return () => {
       document.documentElement.classList.remove('h-full');
-      document.body.classList.remove('h-full');
+      document.body.classList.remove('h-full', 'overflow-hidden');
     };
   }, []);
+
+  useEffect(() => {
+    const u_email = Cookies.get('u_email');
+    if (u_email) {
+      setValue('email', u_email);
+    }
+  }, [setValue]);
 
   return (
     <>
@@ -73,11 +83,11 @@ const Signin = () => {
               className='w-auto h-12 mx-auto'
               cloudName='dmcookpro'
               publicId={'git-dev/gitdev-logo.svg'}
-              alt='GitDev'
+              alt='gitdev'
               draggable={false}
               width={'100%'}
               height={'100%'}
-            ></Image>
+            />
             <AuthMessage
               headlineClassName={'text-center'}
               subHeadLineClassName={'text-center'}
@@ -140,6 +150,7 @@ const Signin = () => {
               <Button
                 type='submit'
                 loading={loading}
+                spinnerClassName={'text-white'}
                 className='group relative !flex w-full justify-center text-white bg-violet-600 hover:bg-violet-700'
               >
                 {SIGNIN}
@@ -153,5 +164,22 @@ const Signin = () => {
 };
 
 Signin.propTypes = {};
+
+export async function getServerSideProps(ctx) {
+  const { u_token } = parseCookies(ctx);
+
+  if (u_token) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
+}
 
 export default Signin;

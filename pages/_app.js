@@ -1,22 +1,19 @@
-import App from 'next/app';
+import { useEffect } from 'react';
 import Layout from '../components/layout/Layout';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/globals.css';
+import '@algolia/autocomplete-theme-classic';
 
-class MyApp extends App {
-  componentDidMount() {
+function MyApp({ Component, pageProps }) {
+  useEffect(() => {
     document.getElementById('__next').classList.add('h-full', 'w-full');
-  }
+  }, []);
 
-  render() {
-    const { Component } = this.props;
-
-    return (
-      <Layout>
-        <Component />
-      </Layout>
-    );
-  }
+  return (
+    <Layout>
+      <Component {...pageProps} />
+    </Layout>
+  );
 }
 
 export default MyApp;

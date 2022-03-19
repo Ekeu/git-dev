@@ -6,3 +6,163 @@
   background: transparent !important;
   box-shadow: none !important;
 }
+
+/** Algolia **/
+
+.aa-Label svg {
+  color: #a78bfa !important;
+}
+
+.aa-Item mark {
+  background-color: transparent !important;
+  color: #7e22ce !important;
+  font-weight: 700 !important;
+}
+
+.aa-Item .aa-ItemContentTitle {
+  font-size: 0.875rem !important;
+}
+
+/** End Algolia **/
+
+/** Emoji Picker **/
+
+.emoji-picker-react {
+  width: 100% !important;
+  height: 100% !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.emoji-picker-react .emoji-categories button.icn-smileys_people {
+  background-image: url('https://res.cloudinary.com/dmcookpro/image/upload/v1646692665/git-dev/emoji-picker-nav/smiley.svg') !important;
+}
+
+.emoji-picker-react .emoji-categories button.icn-animals_nature {
+  background-image: url('https://res.cloudinary.com/dmcookpro/image/upload/v1646692665/git-dev/emoji-picker-nav/animals.svg') !important;
+}
+
+.emoji-picker-react .emoji-categories button.icn-food_drink {
+  background-image: url('https://res.cloudinary.com/dmcookpro/image/upload/v1646692665/git-dev/emoji-picker-nav/food.svg') !important;
+}
+
+.emoji-picker-react .emoji-categories button.icn-travel_places {
+  background-image: url('https://res.cloudinary.com/dmcookpro/image/upload/v1646692667/git-dev/emoji-picker-nav/travel.svg') !important;
+}
+
+.emoji-picker-react .emoji-categories button.icn-activities {
+  background-image: url('https://res.cloudinary.com/dmcookpro/image/upload/v1646692665/git-dev/emoji-picker-nav/activity.svg') !important;
+}
+
+.emoji-picker-react .emoji-categories button.icn-objects {
+  background-image: url('https://res.cloudinary.com/dmcookpro/image/upload/v1646692665/git-dev/emoji-picker-nav/objects.svg') !important;
+}
+
+.emoji-picker-react .emoji-categories button.icn-symbols {
+  background-image: url('https://res.cloudinary.com/dmcookpro/image/upload/v1646692667/git-dev/emoji-picker-nav/symbols.svg') !important;
+}
+
+.emoji-picker-react .emoji-categories button.icn-flags {
+  background-image: url('https://res.cloudinary.com/dmcookpro/image/upload/v1646692665/git-dev/emoji-picker-nav/flag.svg') !important;
+}
+
+.emoji-picker-react input.emoji-search {
+  margin: 6px !important;
+  border-radius: 9999px !important;
+  width: calc(100% - 10px) !important;
+  font-family: 'Hind', sans-serif;
+}
+
+.emoji-picker-react input.emoji-search:focus {
+  border: 2px solid #7c3aed !important;
+  caret-color: #7c3aed !important;
+}
+
+.emoji-picker-react ul.skin-tones-list {
+  top: 22px !important;
+}
+
+.emoji-picker-react
+  .active-category-indicator-wrapper
+  .active-category-indicator {
+  background: #7c3aed !important;
+}
+
+aside.emoji-picker-react .content-wrapper:before {
+  content: none !important;
+}
+
+.emoji-picker-react .emoji-group:before {
+  color: #1e293b !important;
+  font-family: 'Inter', sans-serif !important;
+  text-transform: capitalize !important;
+  text-align: left !important;
+}
+/** End Emoji Picker **/
+
+/** Google Maps */
+
+.pac-container {
+  margin-top: 0.5rem !important;
+  font-family: 'Hind', sans-serif !important;
+  border-radius: 0.5rem !important;
+  padding: 0.75rem !important;
+  max-height: 24rem !important;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-color: rgb(243 244 246 / 1);
+}
+
+.pac-icon {
+  width: 1rem !important;
+  height: 1rem !important;
+  background-image: url('https://res.cloudinary.com/dmcookpro/image/upload/v1646773718/git-dev/icons/location.svg') !important;
+  background-size: 100% 100%;
+  background-repeat: no-repeat !important;
+  background-position: unset !important;
+}
+
+.pac-item {
+  padding: 0.75rem !important;
+  border-radius: 0.75rem !important;
+  cursor: pointer;
+  border-top: none;
+}
+
+.pac-item:hover {
+  background-color: #f1f5f9;
+}
+
+.pac-item span {
+  font-size: 0.75rem;
+  color: #64748b;
+  line-height: 1.25rem;
+  font-family: 'Hind', sans-serif !important;
+}
+
+.pac-item .pac-item-query,
+.pac-item .pac-item-query .pac-matched {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #334155;
+  line-height: 1.25rem;
+  font-family: 'Hind', sans-serif !important;
+}
+
+.pac-logo:after {
+  background-position: center !important;
+  margin-top: 0.75rem;
+}
+/** Google Maps End */
+
+/** Next Image */
+div.image-container > span {
+  position: relative !important;
+}
+
+div.image-container .image {
+  object-fit: cover !important;
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+}
+/** Next Image End */
