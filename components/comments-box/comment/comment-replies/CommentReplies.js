@@ -5,6 +5,7 @@ import { Image } from 'cloudinary-react';
 import millify from 'millify';
 
 import CommentsRepliesBox from '../../comments-box/comment-replies-box/CommentsRepliesBox';
+import { UserContext } from '../../../../context';
 
 const ShowReplyContext = React.createContext();
 
@@ -12,10 +13,16 @@ export function useOpenReply() {
   return useContext(ShowReplyContext);
 }
 
-const CommentReplies = ({ reply }) => {
-  const { _id } = reply || {};
+const CommentReplies = ({ data }) => {
+  const { user: loggedInUser } = useContext(UserContext);
 
-  console.log('REPLY ==> ', reply);
+  const { _id, user, reply, date, commentLikes } = data || {};
+
+  const { profileImageURL, name, role } = user;
+
+  const isOwnerOrRoot = role === 'root' || user?._id === loggedInUser?._id;
+
+  console.log('REPLY ==> ', data);
 
   const [openReply, setOpenReply] = useState(false);
   const [toggleLike, setToggleLike] = useState(false);
@@ -63,35 +70,34 @@ const CommentReplies = ({ reply }) => {
     <div className='flex space-x-3'>
       <div className='flex-shrink-0'>
         <Image
-          className='h-10 w-10 rounded-full'
+          className='h-10 w-10 rounded-full object-cover'
           cloudName='dmcookpro'
-          publicId={`https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
-          alt='user'
+          publicId={profileImageURL}
+          alt={name}
           draggable={false}
           width={'100%'}
           height={'100%'}
         />
       </div>
-      <div>
-        <div className='bg-slate-100 rounded-md p-3 relative font-hind'>
+      <div className='w-full'>
+        <div className='bg-slate-100 rounded-md p-3 relative font-hind w-full'>
           <div className='text-sm flex justify-between'>
             <div className='flex space-x-2'>
               <a href='#' className='font-medium text-sm text-slate-800'>
-                Ulrich E
+                {name}
               </a>
               <span className='text-sm text-slate-500'>2d</span>
             </div>
-            <TrashIcon
-              onClick={onDeleteCommentHandler}
-              className='h-4 w-4 text-slate-300 hover:text-slate-500 flex'
-              role={'button'}
-            />
+            {isOwnerOrRoot && (
+              <TrashIcon
+                onClick={onDeleteCommentHandler}
+                className='h-4 w-4 text-slate-300 hover:text-slate-500 flex'
+                role={'button'}
+              />
+            )}
           </div>
           <div className='mt-1 text-sm text-gray-700'>
-            <p>
-              Ducimus quas delectus ad maxime totam doloribus reiciendis ex.
-              Tempore dolorem maiores. Similique voluptatibus tempore non ut.
-            </p>
+            <p>{reply}</p>
           </div>
           <div className='absolute bottom-0 right-0 transform translate-y-1/2 -translate-x-1.5 shadow-md rounded-full p-1 flex space-x-1 bg-white items-center cursor-pointer'>
             <div className='flex -space-x-1 relative z-0 overflow-hidden'>

@@ -7,7 +7,11 @@ export const UserContext = createContext();
 const UserProvider = UserContext.Provider;
 
 export const UserWrapper = ({ children }) => {
-  const [user, dispatch] = useReducer(userReducer, {});
+  const [user, dispatch] = useReducer(userReducer, {
+    user: {},
+    postsLiked: [],
+    postsCloned: [],
+  });
 
   return <UserProvider value={{ user, dispatch }}>{children}</UserProvider>;
 };

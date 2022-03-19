@@ -99,9 +99,7 @@ const PostDetail = ({ user, error, postData }) => {
                         }`}
                       >
                         <Image
-                          className={
-                            'object-center object-contain group-hover:opacity-75'
-                          }
+                          className={'object-center object-contain'}
                           cloudName='dmcookpro'
                           publicId={post?.postImgURL}
                           alt={post?.postBody}

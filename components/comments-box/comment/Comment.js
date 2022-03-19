@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import CommentsBox from '../comments-box/CommentsBox';
 import CommentReplies from './comment-replies/CommentReplies';
+import { UserContext } from '../../../context';
 
 const ShowReplyContext = React.createContext();
 
@@ -22,6 +23,11 @@ const Comment = ({
   commentUnLikes,
   commentReplies,
 }) => {
+  const { user: loggedInUser } = useContext(UserContext);
+
+  const isOwnerOrRoot =
+    user?.role === 'root' || user?._id === loggedInUser?._id;
+
   const [openReply, setOpenReply] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
   const [toggleLike, setToggleLike] = useState(false);
@@ -91,11 +97,13 @@ const Comment = ({
               </a>
               <span className='text-sm text-slate-500'>2d</span>
             </div>
-            <TrashIcon
-              onClick={onDeleteCommentHandler}
-              className='h-4 w-4 text-slate-300 hover:text-slate-500 flex'
-              role={'button'}
-            />
+            {isOwnerOrRoot && (
+              <TrashIcon
+                onClick={onDeleteCommentHandler}
+                className='h-4 w-4 text-slate-300 hover:text-slate-500 flex'
+                role={'button'}
+              />
+            )}
           </div>
           <div className='mt-1 text-sm text-slate-800'>
             <p>{comment}</p>
@@ -159,7 +167,7 @@ const Comment = ({
         {showReplies && (
           <section aria-describedby='comment-replies'>
             {commentReplies?.map((reply) => (
-              <CommentReplies reply={reply} key={uuidv4()} />
+              <CommentReplies data={reply} key={uuidv4()} />
             ))}
           </section>
         )}

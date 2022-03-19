@@ -252,7 +252,7 @@ const Post = ({ post, loggedInUser }) => {
         {postImgURL && (
           <div className='w-full mt-2'>
             <Image
-              className='object-contain shadow-sm rounded-md'
+              className='object-center object-contain shadow-sm rounded-md'
               cloudName='dmcookpro'
               publicId={postImgURL}
               alt={`Image about <<${postBody}>>`}
