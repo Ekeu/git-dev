@@ -197,6 +197,116 @@ const deletePost = async (req, res, next) => {
   }
 };
 
+// @desc Delete Comment
+// @route DELETE /api/v1/posts/comment/:commentID
+// @access Private
+const deleteComment = async (req, res, next) => {
+  try {
+    const { userID } = req;
+
+    const comment = await Comment.findById(req.params.commentID);
+
+    if (comment) {
+      const user = await User.findById(userID);
+
+      if (comment.user.toString() !== userID) {
+        if (user.role === 'root') {
+          await comment.remove();
+          res.status(201).send('Comment deleted successfully!');
+        } else {
+          throw new APIError(
+            'UNAUTHORIZED',
+            HttpStatusCodes.UNAUTHORIZED,
+            true,
+            'Unauthorized action!'
+          );
+        }
+      }
+
+      await comment.remove();
+      res.status(201).send('Comment deleted successfully!');
+    } else {
+      throw new APIError(
+        'NOT FOUND',
+        HttpStatusCodes.NOT_FOUND,
+        true,
+        'Comment not found.'
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc Delete Reply
+// @route DELETE /api/v1/posts/comment/:commentID/reply/:replyID
+// @access Private
+const deleteReply = async (req, res, next) => {
+  try {
+    const { userID } = req;
+
+    const { commentID, replyID } = req.params;
+
+    const comment = await Comment.findById(commentID);
+
+    if (comment) {
+      const user = await User.findById(userID);
+
+      const reply = comment.commentReplies.find(
+        (reply) => reply._id.toString() === replyID
+      );
+
+      if (reply.user.toString() !== userID) {
+        if (user.role === 'root') {
+          await Comment.updateOne(
+            {
+              _id: commentID,
+            },
+            {
+              $pull: {
+                commentReplies: {
+                  _id: replyID,
+                },
+              },
+            }
+          );
+          res.status(201).send('Reply deleted successfully!');
+        } else {
+          throw new APIError(
+            'UNAUTHORIZED',
+            HttpStatusCodes.UNAUTHORIZED,
+            true,
+            'Unauthorized action!'
+          );
+        }
+      }
+
+      await Comment.updateOne(
+        {
+          _id: commentID,
+        },
+        {
+          $pull: {
+            commentReplies: {
+              _id: replyID,
+            },
+          },
+        }
+      );
+      res.status(201).send('Reply deleted successfully!');
+    } else {
+      throw new APIError(
+        'NOT FOUND',
+        HttpStatusCodes.NOT_FOUND,
+        true,
+        'Comment not found.'
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc Like Post
 // @route PUT /api/v1/posts/:postID/like
 // @access Private
@@ -248,6 +358,136 @@ const likePost = async (req, res, next) => {
       postsLiked: updatedUser.postsLiked,
       postLikes: updatedPost.postLikes,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc Like Reply
+// @route PUT /api/v1/posts/comment/:commentID/reply/:replyID/like
+// @access Private
+const likeReply = async (req, res, next) => {
+  try {
+    const { commentID, replyID } = req.params;
+    const { status } = req.body;
+    const { userID } = req;
+
+    const comment = await Comment.findById(commentID);
+
+    if (!comment)
+      throw new APIError(
+        'NOT FOUND',
+        HttpStatusCodes.NOT_FOUND,
+        true,
+        'Comment not found.'
+      );
+
+    if (status === 0) {
+      await Comment.updateOne(
+        { _id: commentID, 'commentReplies._id': replyID },
+        {
+          $addToSet: {
+            'commentReplies.$.commentUnLikes': userID,
+          },
+
+          $pull: {
+            'commentReplies.$.commentLikes': userID,
+          },
+        }
+      );
+    }
+
+    if (status === 1) {
+      await Comment.updateOne(
+        { _id: commentID, 'commentReplies._id': replyID },
+        {
+          $addToSet: {
+            'commentReplies.$.commentLikes': userID,
+          },
+
+          $pull: {
+            'commentReplies.$.commentUnLikes': userID,
+          },
+        }
+      );
+    }
+
+    if (status === -1) {
+      await Comment.updateOne(
+        { _id: commentID, 'commentReplies._id': replyID },
+        {
+          $pull: {
+            'commentReplies.$.commentLikes': userID,
+          },
+
+          $pull: {
+            'commentReplies.$.commentUnLikes': userID,
+          },
+        }
+      );
+    }
+
+    res.status(201).send('');
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc Like Comment
+// @route PUT /api/v1/posts/comment/:commentID/like
+// @access Private
+const likeComment = async (req, res, next) => {
+  try {
+    const { commentID } = req.params;
+    const { status } = req.body;
+    const { userID } = req;
+
+    const comment = await Comment.findById(commentID);
+
+    if (!comment)
+      throw new APIError(
+        'NOT FOUND',
+        HttpStatusCodes.NOT_FOUND,
+        true,
+        'Comment not found.'
+      );
+
+    if (status === 0) {
+      await Comment.findByIdAndUpdate(commentID, {
+        $addToSet: {
+          commentUnLikes: userID,
+        },
+        $pull: {
+          commentLikes: userID,
+        },
+      });
+    }
+
+    if (status === 1) {
+      await Comment.findByIdAndUpdate(commentID, {
+        $addToSet: {
+          commentLikes: userID,
+        },
+        $pull: {
+          commentUnLikes: userID,
+        },
+      });
+    }
+
+    if (status === -1) {
+      await Comment.findByIdAndUpdate(commentID, {
+        $pull: {
+          commentLikes: userID,
+        },
+      });
+      await Comment.findByIdAndUpdate(commentID, {
+        $pull: {
+          commentUnLikes: userID,
+        },
+      });
+    }
+
+    res.status(201).send('');
   } catch (error) {
     next(error);
   }
@@ -477,7 +717,11 @@ module.exports = {
   getAllPostLikes,
   getPostByUsername,
   commentPost,
-  getPostComments,
   addReply,
+  getPostComments,
   getUpdatedComment,
+  deleteComment,
+  deleteReply,
+  likeComment,
+  likeReply,
 };

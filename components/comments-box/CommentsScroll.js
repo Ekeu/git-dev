@@ -16,6 +16,7 @@ import {
   setPost,
   updateComment,
   updateComments,
+  deleteComment,
 } from '../../context/Post/PostActions';
 import Cookies from 'js-cookie';
 
@@ -118,12 +119,33 @@ const CommentsScroll = () => {
       dispatchPost(updateComment(data.comment));
     };
 
+    const deleteCommentHandler = (commentID) => {
+      dispatchPost(deleteComment(commentID));
+    };
+
     if (update) {
       // 1 ==> update
       // 0 ==> delete
       if (update[0] === 1) {
         try {
           fetchUpdatedComment(update[1]);
+        } catch (error) {
+          const message = errorsService.catchErrors(error);
+          dispatch(
+            setNotification({
+              type: 'simple',
+              icon: {
+                Component: XCircleIcon,
+                className: 'text-red-500',
+              },
+              headline: 'Error',
+              message,
+            })
+          );
+        }
+      } else if (update[0] === 0) {
+        try {
+          deleteCommentHandler(update[1]);
         } catch (error) {
           const message = errorsService.catchErrors(error);
           dispatch(

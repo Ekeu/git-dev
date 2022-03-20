@@ -1,11 +1,22 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import { TrashIcon } from '@heroicons/react/outline';
-import { ThumbDownIcon, ThumbUpIcon } from '@heroicons/react/solid';
+import {
+  ThumbDownIcon,
+  ThumbUpIcon,
+  XCircleIcon,
+} from '@heroicons/react/solid';
 import { Image } from 'cloudinary-react';
 import millify from 'millify';
 
 import CommentsRepliesBox from '../../comments-box/comment-replies-box/CommentsRepliesBox';
-import { UserContext } from '../../../../context';
+import {
+  NotificationContext,
+  PostContext,
+  UserContext,
+} from '../../../../context';
+import { errorsService, postService } from '../../../../services';
+import { setNotification } from '../../../../context/Notification/NotificationActions';
+import { setPost } from '../../../../context/Post/PostActions';
 
 const ShowReplyContext = React.createContext();
 
@@ -13,50 +24,64 @@ export function useOpenReply() {
   return useContext(ShowReplyContext);
 }
 
-const CommentReplies = ({ data }) => {
+const CommentReplies = ({ data, parentid }) => {
   const { user: loggedInUser } = useContext(UserContext);
+  const { dispatch: dispatchPost } = useContext(PostContext);
+  const { dispatch } = useContext(NotificationContext);
 
-  const { _id, user, reply, date, commentLikes } = data || {};
+  const { _id, user, reply, date, commentLikes, commentUnLikes } = data || {};
 
   const { profileImageURL, name, role } = user;
 
   const isOwnerOrRoot = role === 'root' || user?._id === loggedInUser?._id;
 
-  console.log('REPLY ==> ', data);
+  const [loading, setLoading] = useState(false);
 
   const [openReply, setOpenReply] = useState(false);
-  const [toggleLike, setToggleLike] = useState(false);
-  const [toggleUnlike, setToggleUnLike] = useState(false);
-  const [likes, setLikes] = useState(10);
-  const [unlikes, setUnLikes] = useState(11);
 
-  const onLikeCommentHandler = () => {
+  const [toggleLike, setToggleLike] = useState(
+    commentLikes?.includes(loggedInUser?._id) || false
+  );
+  const [toggleUnlike, setToggleUnLike] = useState(
+    commentUnLikes?.includes(loggedInUser?._id) || false
+  );
+
+  const likesRef = useRef(commentLikes?.length || 0);
+  const unLikesRef = useRef(commentUnLikes?.length || 0);
+
+  const onLikeCommentHandler = async () => {
     if (toggleUnlike) {
       setToggleLike(true);
       setToggleUnLike(false);
-      setLikes((prvLikes) => prvLikes + 1);
-      setUnLikes((prvUnlikes) => prvUnlikes - 1);
+      likesRef.current = likesRef.current + 1;
+      unLikesRef.current = unLikesRef.current - 1;
+      await postService.updateReplyLikes(parentid, _id, 1);
     } else if (toggleLike) {
-      setLikes((prvLikes) => prvLikes - 1);
+      likesRef.current = likesRef.current - 1;
       setToggleLike(false);
+      await postService.updateReplyLikes(parentid, _id, -1);
     } else {
       setToggleLike(true);
-      setLikes((prvLikes) => prvLikes + 1);
+      likesRef.current = likesRef.current + 1;
+      await postService.updateReplyLikes(parentid, _id, 1);
     }
   };
 
-  const onUnlikeCommentHandler = () => {
+  const onUnlikeCommentHandler = async () => {
     if (toggleLike) {
       setToggleLike(false);
       setToggleUnLike(true);
-      setUnLikes((prvUnlikes) => prvUnlikes + 1);
-      setLikes((prvLikes) => prvLikes - 1);
+      unLikesRef.current = unLikesRef.current + 1;
+      likesRef.current = likesRef.current - 1;
+      await postService.updateReplyLikes(parentid, _id, 0);
     } else if (toggleUnlike) {
-      setUnLikes((prvUnlikes) => prvUnlikes - 1);
+      unLikesRef.current = unLikesRef.current - 1;
       setToggleUnLike(false);
+      await postService.updateReplyLikes(parentid, _id, -1);
     } else {
       setToggleUnLike(true);
-      setUnLikes((prvUnlikes) => prvUnlikes + 1);
+      unLikesRef.current = unLikesRef.current + 1;
+      await postService.updateReplyLikes(parentid, _id, 0);
     }
   };
 
@@ -64,7 +89,28 @@ const CommentReplies = ({ data }) => {
     setOpenReply(!openReply);
   };
 
-  const onDeleteCommentHandler = () => {};
+  const onDeleteCommentHandler = async () => {
+    try {
+      setLoading(true);
+      await postService.deleteReply(parentid, _id);
+      dispatchPost(setPost({ update: [1, parentid] }));
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      const message = errorsService.catchErrors(error);
+      dispatch(
+        setNotification({
+          type: 'simple',
+          icon: {
+            Component: XCircleIcon,
+            className: 'text-red-500',
+          },
+          headline: 'Delete Error',
+          message,
+        })
+      );
+    }
+  };
 
   return (
     <div className='flex space-x-3'>
@@ -109,7 +155,7 @@ const CommentReplies = ({ data }) => {
               </div>
             </div>
             <span className='text-xs leading-none'>
-              {millify(likes + unlikes)}
+              {millify(likesRef.current + unLikesRef.current)}
             </span>
           </div>
         </div>

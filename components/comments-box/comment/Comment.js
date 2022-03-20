@@ -1,13 +1,25 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { TrashIcon } from '@heroicons/react/outline';
-import { ReplyIcon, ThumbDownIcon, ThumbUpIcon } from '@heroicons/react/solid';
+import {
+  ReplyIcon,
+  ThumbDownIcon,
+  ThumbUpIcon,
+  XCircleIcon,
+} from '@heroicons/react/solid';
 import { Image } from 'cloudinary-react';
 import millify from 'millify';
 import { v4 as uuidv4 } from 'uuid';
 
 import CommentsBox from '../comments-box/CommentsBox';
 import CommentReplies from './comment-replies/CommentReplies';
-import { UserContext } from '../../../context';
+import {
+  NotificationContext,
+  PostContext,
+  UserContext,
+} from '../../../context';
+import { errorsService, postService } from '../../../services';
+import { setPost } from '../../../context/Post/PostActions';
+import { setNotification } from '../../../context/Notification/NotificationActions';
 
 const ShowReplyContext = React.createContext();
 
@@ -24,44 +36,60 @@ const Comment = ({
   commentReplies,
 }) => {
   const { user: loggedInUser } = useContext(UserContext);
+  const { dispatch: dispatchPost } = useContext(PostContext);
+  const { dispatch } = useContext(NotificationContext);
 
   const isOwnerOrRoot =
     user?.role === 'root' || user?._id === loggedInUser?._id;
 
+  const [loading, setLoading] = useState(false);
+
   const [openReply, setOpenReply] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
-  const [toggleLike, setToggleLike] = useState(false);
-  const [toggleUnlike, setToggleUnLike] = useState(false);
-  const [likes, setLikes] = useState(10);
-  const [unlikes, setUnLikes] = useState(11);
 
-  const onLikeCommentHandler = () => {
+  const [toggleLike, setToggleLike] = useState(
+    commentLikes?.includes(loggedInUser?._id) || false
+  );
+  const [toggleUnlike, setToggleUnLike] = useState(
+    commentUnLikes?.includes(loggedInUser?._id) || false
+  );
+
+  const likesRef = useRef(commentLikes?.length || 0);
+  const unLikesRef = useRef(commentUnLikes?.length || 0);
+
+  const onLikeCommentHandler = async () => {
     if (toggleUnlike) {
       setToggleLike(true);
       setToggleUnLike(false);
-      setLikes((prvLikes) => prvLikes + 1);
-      setUnLikes((prvUnlikes) => prvUnlikes - 1);
+      likesRef.current = likesRef.current + 1;
+      unLikesRef.current = unLikesRef.current - 1;
+      await postService.updateCommentLikes(id, 1);
     } else if (toggleLike) {
-      setLikes((prvLikes) => prvLikes - 1);
+      likesRef.current = likesRef.current - 1;
       setToggleLike(false);
+      await postService.updateCommentLikes(id, -1);
     } else {
       setToggleLike(true);
-      setLikes((prvLikes) => prvLikes + 1);
+      likesRef.current = likesRef.current + 1;
+      await postService.updateCommentLikes(id, 1);
     }
   };
 
-  const onUnlikeCommentHandler = () => {
+  const onUnlikeCommentHandler = async () => {
     if (toggleLike) {
       setToggleLike(false);
       setToggleUnLike(true);
-      setUnLikes((prvUnlikes) => prvUnlikes + 1);
-      setLikes((prvLikes) => prvLikes - 1);
+      unLikesRef.current = unLikesRef.current + 1;
+      likesRef.current = likesRef.current - 1;
+      await postService.updateCommentLikes(id, 0);
     } else if (toggleUnlike) {
-      setUnLikes((prvUnlikes) => prvUnlikes - 1);
+      unLikesRef.current = unLikesRef.current - 1;
       setToggleUnLike(false);
+      await postService.updateCommentLikes(id, -1);
     } else {
       setToggleUnLike(true);
-      setUnLikes((prvUnlikes) => prvUnlikes + 1);
+      unLikesRef.current = unLikesRef.current + 1;
+      await postService.updateCommentLikes(id, 0);
     }
   };
 
@@ -73,7 +101,28 @@ const Comment = ({
     setShowReplies(!showReplies);
   };
 
-  const onDeleteCommentHandler = () => {};
+  const onDeleteCommentHandler = async () => {
+    try {
+      setLoading(true);
+      await postService.deleteComment(id);
+      dispatchPost(setPost({ update: [0, id] }));
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      const message = errorsService.catchErrors(error);
+      dispatch(
+        setNotification({
+          type: 'simple',
+          icon: {
+            Component: XCircleIcon,
+            className: 'text-red-500',
+          },
+          headline: 'Delete Error',
+          message,
+        })
+      );
+    }
+  };
 
   return (
     <div className='flex space-x-3'>
@@ -109,17 +158,25 @@ const Comment = ({
             <p>{comment}</p>
           </div>
           <div className='absolute bottom-0 right-0 transform translate-y-1/2 -translate-x-1.5 shadow-md rounded-full p-1 flex space-x-1 bg-white items-center cursor-pointer'>
-            <div className='flex -space-x-1 relative z-0 overflow-hidden'>
-              <div className='bg-red-500 p-1 rounded-full relative z-30 ring-1 ring-white'>
-                <ThumbDownIcon className='text-white h-3 w-3 block' />
+            {likesRef.current + unLikesRef.current >= 1 && (
+              <div className='flex -space-x-1 relative z-0 overflow-hidden'>
+                {unLikesRef.current >= 1 && (
+                  <div className='bg-red-500 p-1 rounded-full relative z-30 ring-1 ring-white'>
+                    <ThumbDownIcon className='text-white h-3 w-3 block' />
+                  </div>
+                )}
+                {likesRef.current >= 1 && (
+                  <div className='bg-violet-600 p-1 rounded-full relative z-20 ring-1 ring-white'>
+                    <ThumbUpIcon className='text-white h-3 w-3 block' />
+                  </div>
+                )}
               </div>
-              <div className='bg-violet-600 p-1 rounded-full relative z-20 ring-1 ring-white'>
-                <ThumbUpIcon className='text-white h-3 w-3 block' />
-              </div>
-            </div>
-            <span className='text-xs leading-none'>
-              {millify(likes + unlikes)}
-            </span>
+            )}
+            {likesRef.current + unLikesRef.current > 1 && (
+              <span className='text-xs leading-none'>
+                {millify(likesRef.current + unLikesRef.current)}
+              </span>
+            )}
           </div>
         </div>
         <div
@@ -167,7 +224,7 @@ const Comment = ({
         {showReplies && (
           <section aria-describedby='comment-replies'>
             {commentReplies?.map((reply) => (
-              <CommentReplies data={reply} key={uuidv4()} />
+              <CommentReplies parentid={id} data={reply} key={uuidv4()} />
             ))}
           </section>
         )}

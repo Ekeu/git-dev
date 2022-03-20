@@ -27,3 +27,12 @@ export const updateComment = (updatedComment) => {
     },
   };
 };
+
+export const deleteComment = (commentID) => {
+  return {
+    type: DELETE_COMMENT,
+    payload: {
+      commentID,
+    },
+  };
+};

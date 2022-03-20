@@ -14,11 +14,21 @@ const {
   getPostComments,
   addReply,
   getUpdatedComment,
+  deleteComment,
+  deleteReply,
+  likeComment,
+  likeReply,
 } = require('../controllers/post');
 const { protect } = require('../middleware/auth');
 
 router.route('/').get(protect, getAllPosts).post(protect, createPost);
-router.route('/comment/:commentID').get(protect, getUpdatedComment);
+router.route('/comment/:commentID/reply/:replyID').delete(protect, deleteReply);
+router.route('/comment/:commentID/like').put(protect, likeComment);
+router.route('/comment/:commentID/reply/:replyID/like').put(protect, likeReply);
+router
+  .route('/comment/:commentID')
+  .get(protect, getUpdatedComment)
+  .delete(protect, deleteComment);
 router.route('/:postID/reply').post(protect, addReply);
 router.route('/:postID/comment').post(protect, commentPost);
 router.route('/:postID/clone').post(protect, clonePost);

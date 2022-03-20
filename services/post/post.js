@@ -152,6 +152,65 @@ const getUpdatedComment = async (commentID) => {
     {
       headers: {
         Authorization: `Bearer ${u_token}`,
+      },
+    }
+  );
+
+  return res.data;
+};
+
+const deleteComment = async (commentID) => {
+  const u_token = Cookie.get('u_token');
+  const res = await axios.delete(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/posts/comment/${commentID}`,
+    {
+      headers: {
+        Authorization: `Bearer ${u_token}`,
+      },
+    }
+  );
+
+  return res.data;
+};
+
+const deleteReply = async (commentID, replyID) => {
+  const u_token = Cookie.get('u_token');
+  const res = await axios.delete(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/posts/comment/${commentID}/reply/${replyID}`,
+    {
+      headers: {
+        Authorization: `Bearer ${u_token}`,
+      },
+    }
+  );
+
+  return res.data;
+};
+
+const updateCommentLikes = async (commentID, status) => {
+  const u_token = Cookie.get('u_token');
+  const res = await axios.put(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/posts/comment/${commentID}/like`,
+    { status },
+    {
+      headers: {
+        Authorization: `Bearer ${u_token}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+
+  return res.data;
+};
+
+const updateReplyLikes = async (commentID, replyID, status) => {
+  const u_token = Cookie.get('u_token');
+  const res = await axios.put(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/posts/comment/${commentID}/reply/${replyID}/like`,
+    { status },
+    {
+      headers: {
+        Authorization: `Bearer ${u_token}`,
         'Content-Type': 'application/json',
       },
     }
@@ -171,4 +230,8 @@ export const postService = {
   getPostComments,
   addReply,
   getUpdatedComment,
+  deleteComment,
+  deleteReply,
+  updateCommentLikes,
+  updateReplyLikes,
 };
