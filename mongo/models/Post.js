@@ -26,6 +26,10 @@ const PostSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    clone: {
+      type: Boolean,
+      default: false,
+    },
     postLikes: [
       {
         type: Schema.Types.ObjectId,

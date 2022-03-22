@@ -20,11 +20,12 @@ export const deletePost = (postID) => ({
   },
 });
 
-export const updatePostLikes = (postLikes, postID) => ({
+export const updatePostLikes = (postLikes, postID, isClone) => ({
   type: LIKE_POST,
   payload: {
     postLikes,
     postID,
+    isClone,
   },
 });
 export const updatePostClones = (postClones, postID) => ({

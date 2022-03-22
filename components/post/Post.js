@@ -33,10 +33,6 @@ const Post = ({ post, loggedInUser }) => {
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [openPostModal, setOpenPostModal] = useState(false);
-  const [isClone, setIsClone] = useState(false);
-  const [clonedBy, setClonedBy] = useState(null);
-  const [postData, setPostData] = useState(null);
-  const [postAuthor, setPostAuthor] = useState({});
 
   const {
     _id = '',
@@ -44,12 +40,18 @@ const Post = ({ post, loggedInUser }) => {
     postBody = '',
     postImgURL = '',
     createdAt = '',
+    clonedBy = null,
+    clone = false,
+    user = null,
+    author = null,
     postLikes = [],
     postClones = [],
     postLocation = '',
-  } = postData || {};
+  } = post || {};
 
-  const { name, profileImageURL, username } = postAuthor;
+  const { name, profileImageURL, username } = author || user;
+
+  //console.log(postData);
 
   const onOpenModalHandler = () => {
     setOpenModal(true);
@@ -103,7 +105,7 @@ const Post = ({ post, loggedInUser }) => {
   const onLikePostHandler = async () => {
     try {
       const data = await postService.likePost(_id);
-      dispatchPost(updatePostLikes(data.postLikes, _id));
+      dispatchPost(updatePostLikes(data.postLikes, _id, clone));
       dispatchUser(updatePostsLiked(data.postsLiked));
     } catch (error) {
       const message = errorsService.catchErrors(error);
@@ -130,7 +132,17 @@ const Post = ({ post, loggedInUser }) => {
         dispatchPost(updatePostClones(data.postClones, _id));
         dispatchUser(updatePostsCloned(data.postsCloned));
       } else {
-        dispatchPost(createPost(data.clonedPost));
+        const { cloneData, ...restPost } = data.clonedPost;
+        const { user, ...restCloneData } = cloneData;
+
+        const newPost = {
+          ...restPost,
+          ...restCloneData,
+          author: user,
+          clone: data.clonedPost?.clone,
+          clonedBy: data.clonedPost?.user?.username,
+        };
+        dispatchPost(createPost(newPost));
         dispatchPost(updatePostClones(data.postClones, _id));
         dispatchUser(updatePostsCloned(data.postsCloned));
       }
@@ -150,28 +162,6 @@ const Post = ({ post, loggedInUser }) => {
     }
   };
 
-  useEffect(() => {
-    const postIsCloned = post?.cloneData !== undefined;
-    const postWasClonedBy = postIsCloned ? post?.user.username : null;
-
-    if (postIsCloned) {
-      const { cloneData, ...restPost } = post;
-      const { user, ...restCloneData } = cloneData;
-
-      setPostData({
-        ...restPost,
-        ...restCloneData,
-        author: user,
-      });
-      setPostAuthor(user);
-    } else {
-      setPostData(post);
-      setPostAuthor(post?.user);
-    }
-    setIsClone(postIsCloned);
-    setClonedBy(postWasClonedBy);
-  }, [post]);
-
   return (
     <>
       <article aria-labelledby={'post-' + _id}>
@@ -190,7 +180,7 @@ const Post = ({ post, loggedInUser }) => {
               />
             </div>
             <div className='min-w-0 flex-1 font-hind'>
-              {isClone && (
+              {clone && (
                 <div className='flex'>
                   <RetweetIcon className={'h-4 w-4 fill-slate-600'} />
                   <p className='text-sm font-medium text-gray-600 block ml-2'>
@@ -295,7 +285,7 @@ const Post = ({ post, loggedInUser }) => {
         className={'sm:p-6 sm:w-full'}
         center
       >
-        <PostReply post={postData} cancelButtonRef={cancelButtonRef} />
+        <PostReply post={post} cancelButtonRef={cancelButtonRef} />
       </Modal>
     </>
   );

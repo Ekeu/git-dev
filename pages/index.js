@@ -23,7 +23,23 @@ export default function Home({ user, postsData, error }) {
   }
 
   useEffect(() => {
-    dispatchPost(setPosts(postsData));
+    const newPosts = postsData.map((post) => {
+      if (post?.clone) {
+        const { cloneData, ...restPost } = post;
+        const { user, ...restCloneData } = cloneData;
+
+        return {
+          ...restPost,
+          ...restCloneData,
+          author: user,
+          clone: post?.clone,
+          clonedBy: post?.user?.username,
+        };
+      }
+
+      return post;
+    });
+    dispatchPost(setPosts(newPosts));
     dispatchUser(setUser(user));
   }, [dispatchPost, dispatchUser, postsData, user]);
 

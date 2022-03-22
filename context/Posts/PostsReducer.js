@@ -11,6 +11,7 @@ const postsReducer = (state = [], action) => {
     postID = null,
     posts = [],
     post = {},
+    isClone = false,
     postLikes = [],
     postClones = [],
   } = action.payload;
@@ -28,6 +29,19 @@ const postsReducer = (state = [], action) => {
     case LIKE_POST:
       return [...state].map((post) => {
         if (post._id === postID) {
+          if (isClone) {
+            if (post.clone) {
+              return {
+                ...post,
+                postLikes,
+              };
+            }
+
+            return {
+              ...post,
+              postLikes,
+            };
+          }
           return {
             ...post,
             postLikes,

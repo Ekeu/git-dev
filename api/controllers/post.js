@@ -315,8 +315,12 @@ const likePost = async (req, res, next) => {
     const { postID } = req.params;
     const { userID } = req;
 
-    const post = await Post.findById(postID);
+    const post = await Post.findById(postID).populate('cloneData');
     const user = await User.findById(userID);
+
+    const isClone = post.cloneData !== undefined;
+
+    const originalPost = isClone ? post.cloneData : post;
 
     if (!post)
       throw new APIError(
@@ -326,7 +330,8 @@ const likePost = async (req, res, next) => {
         'Post not found.'
       );
 
-    const userLikedPost = user.postsLiked && user.postsLiked.includes(postID);
+    const userLikedPost =
+      user.postsLiked && user.postsLiked.includes(originalPost._id);
 
     const option = userLikedPost ? '$pull' : '$addToSet';
 
@@ -334,7 +339,7 @@ const likePost = async (req, res, next) => {
       userID,
       {
         [option]: {
-          postsLiked: postID,
+          postsLiked: originalPost._id,
         },
       },
       {
@@ -524,7 +529,17 @@ const clonePost = async (req, res, next) => {
       clonedPost = await Post.create({
         user: userID,
         cloneData: postID,
-      }).populate('cloneData');
+        clone: true,
+      });
+      clonedPost = await clonedPost.populate({
+        path: 'cloneData',
+        populate: {
+          path: 'user',
+          model: 'User',
+        },
+      });
+
+      clonedPost = await clonedPost.populate('user');
     }
 
     const updatedUser = await User.findByIdAndUpdate(
